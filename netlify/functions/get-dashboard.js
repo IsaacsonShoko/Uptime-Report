@@ -42,7 +42,7 @@ function aggregate(normalized) {
         const sites  = latest.map(row => {
             const avail = parseFloat(((row.uptimeHours / 24) * 100).toFixed(1));
             bands[bandOf(avail)]++;
-            return { name: row.name, uptime: row.uptimeHours, downtime: row.downtime, availability: avail };
+            return { name: row.name, uptime: row.uptimeHours, downtime: row.downtime, availability: avail, location: row.location || '' };
         }).sort((a, b) => b.availability - a.availability);
 
         const avgAvailability  = parseFloat((latest.reduce((s, r) => s + (r.uptimeHours / 24) * 100, 0) / latest.length).toFixed(1));
@@ -121,14 +121,15 @@ export const handler = async (event) => {
             const name        = (f['Names'] || f['Name'] || '').trim();
             const date        = f['Date'] || '';
             if (!name || !PERIODS.includes(timePeriod)) return null;
-            return { date, name, timePeriod, uptimeHours, downtime: Math.max(0, 24 - uptimeHours) };
+            return { date, name, timePeriod, uptimeHours, downtime: Math.max(0, 24 - uptimeHours), location: (f['Location'] || '').trim() };
         }).filter(Boolean);
 
         const availableDates = [...new Set(normalized.map(r => r.date).filter(Boolean))].sort().reverse();
         const requestedDate  = event.queryStringParameters?.date || availableDates[0] || '';
         const filtered       = requestedDate ? normalized.filter(r => r.date === requestedDate) : normalized;
 
-        const payload = { date: requestedDate, availableDates, ...aggregate(filtered) };
+        const locations = [...new Set(normalized.map(r => r.location).filter(Boolean))].sort();
+        const payload = { date: requestedDate, availableDates, locations, ...aggregate(filtered) };
 
         return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) };
     } catch (err) {

@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 
 const TIME_PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const CV_TABLE     = 'tblujIggqfABKXFco'; // Name Conversions
 
 export const handler = async () => {
     try {
@@ -12,32 +13,62 @@ export const handler = async () => {
             return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Missing Airtable credentials' }) };
         }
 
-        let allNames = new Set();
-        let offset   = null;
+        async function fetchAll(tableId) {
+            const records = [];
+            let offset = null;
+            do {
+                const url = new URL(`https://api.airtable.com/v0/${baseId}/${tableId}`);
+                url.searchParams.set('pageSize', '100');
+                if (offset) url.searchParams.set('offset', offset);
+                const res  = await fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
+                if (!res.ok) throw new Error(`Airtable error: ${res.statusText}`);
+                const data = await res.json();
+                records.push(...(data.records || []));
+                offset = data.offset || null;
+            } while (offset);
+            return records;
+        }
 
-        do {
-            const url = new URL(`https://api.airtable.com/v0/${baseId}/${encodeURIComponent(table)}`);
-            url.searchParams.set('fields[]', 'Names');
-            url.searchParams.set('pageSize', '100');
-            if (offset) url.searchParams.set('offset', offset);
+        // Fetch timesheets (for flat names list) and name conversions (for location cascade) in parallel
+        const [tsRecords, cvRecords] = await Promise.all([
+            fetchAll(table),
+            fetchAll(CV_TABLE),
+        ]);
 
-            const response = await fetch(url.toString(), {
-                headers: { Authorization: `Bearer ${apiKey}` },
-            });
+        // Flat list of all unique names from Timesheets
+        const allNames = new Set();
+        tsRecords.forEach(r => {
+            const n = r.fields?.Names?.trim();
+            if (n) allNames.add(n);
+        });
 
-            if (!response.ok) throw new Error(`Airtable error: ${response.statusText}`);
-
-            const data = await response.json();
-            (data.records || []).forEach(r => {
-                if (r.fields?.Names) allNames.add(String(r.fields.Names).trim());
-            });
-            offset = data.offset || null;
-        } while (offset);
+        // Location → names mapping from Name Conversions
+        const namesByLocation = {};
+        const locationSet = new Set();
+        for (const r of cvRecords) {
+            const device   = r.fields['DEVICE NAME']?.trim();
+            const location = r.fields['LOCATION']?.name ?? r.fields['LOCATION'];
+            if (device && location && location !== 'undefined') {
+                if (!namesByLocation[location]) namesByLocation[location] = [];
+                namesByLocation[location].push(device);
+                locationSet.add(location);
+            }
+        }
+        // Sort names within each location
+        for (const loc of Object.keys(namesByLocation)) {
+            namesByLocation[loc].sort();
+        }
+        const locations = [...locationSet].sort();
 
         return {
             statusCode: 200,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ names: [...allNames].sort(), timePeriods: TIME_PERIODS }),
+            body: JSON.stringify({
+                names:           [...allNames].sort(),
+                namesByLocation,
+                locations,
+                timePeriods:     TIME_PERIODS,
+            }),
         };
     } catch (error) {
         console.error('Error getting options:', error.message);

@@ -9,20 +9,80 @@ import AttentionTable from './components/AttentionTable.jsx';
 const PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 
 const TABS = [
-  { id: 'overview', label: 'Overview',      dot: '#2563EB' },
-  { id: 'green',    label: 'Green Band',    dot: '#16A34A' },
-  { id: 'amber',    label: 'Amber Band',    dot: '#D97706' },
-  { id: 'red',      label: 'Red Band',      dot: '#DC2626' },
-  { id: 'detail',   label: 'Period Detail', dot: '#94A3B8' },
-  { id: 'attention',label: 'Attention',     dot: '#DC2626' },
+  { id: 'overview',  label: 'Overview',       dot: '#2563EB' },
+  { id: 'green',     label: 'Green Band',     dot: '#16A34A' },
+  { id: 'amber',     label: 'Amber Band',     dot: '#D97706' },
+  { id: 'red',       label: 'Red Band',       dot: '#DC2626' },
+  { id: 'detail',    label: 'Period Detail',  dot: '#94A3B8' },
+  { id: 'attention', label: 'Attention',      dot: '#DC2626' },
 ];
 
+function bandOf(pct) {
+  if (pct >= 75) return 'green';
+  if (pct >= 50) return 'amber';
+  return 'red';
+}
+
+function filterByLocation(data, location) {
+  if (!location) return data;
+
+  const periods = {};
+  for (const [period, pData] of Object.entries(data.periods || {})) {
+    const sites = pData.sites.filter(s => s.location === location);
+    if (!sites.length) continue;
+
+    const bands = { green: 0, amber: 0, red: 0 };
+    sites.forEach(s => bands[bandOf(s.availability)]++);
+
+    periods[period] = {
+      ...pData,
+      sites,
+      bands,
+      count:           sites.length,
+      avgAvailability: parseFloat((sites.reduce((s, r) => s + r.availability, 0) / sites.length).toFixed(1)),
+      avgUptimeHours:  parseFloat((sites.reduce((s, r) => s + r.uptime,       0) / sites.length).toFixed(2)),
+      avgDowntimeHours:parseFloat((sites.reduce((s, r) => s + r.downtime,     0) / sites.length).toFixed(2)),
+    };
+  }
+
+  const bandDetails = { green: {}, amber: {}, red: {} };
+  for (const period of Object.keys(periods)) {
+    for (const band of ['green', 'amber', 'red']) {
+      const bs = periods[period].sites.filter(s => bandOf(s.availability) === band);
+      if (!bs.length) { bandDetails[band][period] = { count: 0, avgUptime: 0, avgDowntime: 0 }; continue; }
+      bandDetails[band][period] = {
+        count:      bs.length,
+        avgUptime:  parseFloat((bs.reduce((s, r) => s + r.uptime,   0) / bs.length).toFixed(2)),
+        avgDowntime:parseFloat((bs.reduce((s, r) => s + r.downtime, 0) / bs.length).toFixed(2)),
+      };
+    }
+  }
+
+  const activePeriods = Object.keys(periods);
+  const siteNames     = [...new Set(activePeriods.flatMap(p => periods[p].sites.map(s => s.name)))];
+  const allAvails     = activePeriods.flatMap(p => periods[p].sites.map(s => s.availability));
+  const overallAvgAvailability = allAvails.length
+    ? parseFloat((allAvails.reduce((s, v) => s + v, 0) / allAvails.length).toFixed(1))
+    : 0;
+
+  return {
+    ...data,
+    periods,
+    bandDetails,
+    totalSites: siteNames.length,
+    overallAvgAvailability,
+    topPerformers:         (data.topPerformers         || []).filter(n    => siteNames.includes(n)),
+    sitesNeedingAttention: (data.sitesNeedingAttention || []).filter(s    => siteNames.includes(s.name)),
+  };
+}
+
 export default function App() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [selectedDate, setSelectedDate] = useState('');
+  const [data,             setData]             = useState(null);
+  const [loading,          setLoading]          = useState(true);
+  const [error,            setError]            = useState(null);
+  const [activeTab,        setActiveTab]        = useState('overview');
+  const [selectedDate,     setSelectedDate]     = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('');
   const isInitial = useRef(true);
 
   /* Initial load */
@@ -45,27 +105,21 @@ export default function App() {
       });
   }, []);
 
-  /* Re-fetch when date changes (skip the initial set) */
+  /* Re-fetch when date changes */
   useEffect(() => {
     if (isInitial.current || !selectedDate) return;
     setLoading(true);
     setError(null);
+    setSelectedLocation('');
     fetch(`/api/get-dashboard?date=${selectedDate}`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
         return r.json();
       })
-      .then((json) => {
-        setData(json);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+      .then((json) => { setData(json); setLoading(false); })
+      .catch((err)  => { setError(err.message); setLoading(false); });
   }, [selectedDate]);
 
-  /* ── Render ── */
   if (loading) {
     return (
       <div className="loading-screen">
@@ -85,32 +139,29 @@ export default function App() {
     );
   }
 
+  const viewData = filterByLocation(data, selectedLocation);
+
   function renderTab() {
     switch (activeTab) {
       case 'overview':
         return (
           <>
-            <KPICards data={data} />
-            <OverviewCharts data={data} />
+            <KPICards data={viewData} />
+            <OverviewCharts data={viewData} />
           </>
         );
-      case 'green':
-        return <BandTab band="green" data={data} />;
-      case 'amber':
-        return <BandTab band="amber" data={data} />;
-      case 'red':
-        return <BandTab band="red" data={data} />;
-      case 'detail':
-        return <PeriodTabs data={data} />;
+      case 'green':     return <BandTab band="green" data={viewData} />;
+      case 'amber':     return <BandTab band="amber" data={viewData} />;
+      case 'red':       return <BandTab band="red"   data={viewData} />;
+      case 'detail':    return <PeriodTabs data={viewData} />;
       case 'attention':
         return (
           <>
-            <TopPerformers performers={data.topPerformers} />
-            <AttentionTable sites={data.sitesNeedingAttention} periodLabels={PERIODS} />
+            <TopPerformers performers={viewData.topPerformers} />
+            <AttentionTable sites={viewData.sitesNeedingAttention} periodLabels={PERIODS} />
           </>
         );
-      default:
-        return null;
+      default: return null;
     }
   }
 
@@ -123,6 +174,17 @@ export default function App() {
           ISP Uptime Monitor
         </h1>
         <div className="header-right">
+          <span className="date-label">Location</span>
+          <select
+            className="date-select"
+            value={selectedLocation}
+            onChange={(e) => setSelectedLocation(e.target.value)}
+          >
+            <option value="">All Locations</option>
+            {(data.locations ?? []).map((l) => (
+              <option key={l} value={l}>{l}</option>
+            ))}
+          </select>
           <span className="date-label">Report Date</span>
           <select
             className="date-select"
@@ -156,6 +218,12 @@ export default function App() {
 
       {/* ── Tab Content ── */}
       <main className="app-main">
+        {selectedLocation && (
+          <div className="location-banner">
+            Showing: <strong>{selectedLocation}</strong>
+            <button className="location-clear" onClick={() => setSelectedLocation('')}>✕ All Locations</button>
+          </div>
+        )}
         {renderTab()}
       </main>
     </>

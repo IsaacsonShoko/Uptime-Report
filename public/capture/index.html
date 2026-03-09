@@ -368,6 +368,12 @@
         <div id="loadingStatus" class="status-row">Loading providers…</div>
 
         <div id="entryForm" style="display:none">
+            <div class="field" style="margin:0">
+                    <label for="inputLocation">Filter by Location</label>
+                    <select id="inputLocation" onchange="populateNameDropdown()">
+                        <option value="">— All locations —</option>
+                    </select>
+                </div>
             <div class="entry-row">
                 <div class="field" style="margin:0">
                     <label for="inputName">Provider Name</label>
@@ -428,8 +434,9 @@
 
 <script>
     // ── State ─────────────────────────────────────────────────
-    let allNames = [];
-    let queue    = [];   // { name, timePeriod, uptimeHours, downtimeHours }
+    let allNames        = [];
+    let namesByLocation = {};
+    let queue           = [];   // { name, timePeriod, uptimeHours, downtimeHours }
 
     // ── Init ──────────────────────────────────────────────────
     document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
@@ -445,8 +452,15 @@
             ps.innerHTML = '<option value="">— Select period —</option>' +
                 (data.timePeriods || []).map(p => `<option>${escHtml(p)}</option>`).join('');
 
-            // Store names
-            allNames = data.names || [];
+            // Store names and location data
+            allNames        = data.names || [];
+            namesByLocation = data.namesByLocation || {};
+
+            // Populate location dropdown
+            const locSelect = document.getElementById('inputLocation');
+            locSelect.innerHTML = '<option value="">— All locations —</option>' +
+                (data.locations || []).map(l => `<option value="${escHtml(l)}">${escHtml(l)}</option>`).join('');
+
             populateNameDropdown();
 
             document.getElementById('loadingStatus').style.display = 'none';
@@ -459,10 +473,14 @@
     }
 
     function populateNameDropdown() {
-        const inQueue = new Set(queue.map(e => e.name));
+        const inQueue  = new Set(queue.map(e => e.name));
+        const location = document.getElementById('inputLocation').value;
+        const sourceNames = location && namesByLocation[location]
+            ? namesByLocation[location]
+            : allNames;
         const ns = document.getElementById('inputName');
         ns.innerHTML = '<option value="">— Select provider —</option>' +
-            allNames.map(n => {
+            sourceNames.map(n => {
                 const queued = inQueue.has(n);
                 return `<option value="${escHtml(n)}" ${queued ? 'disabled' : ''}>${escHtml(n)}${queued ? ' (queued)' : ''}</option>`;
             }).join('');
