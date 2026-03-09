@@ -9,17 +9,18 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f0f2f5;
+            background: #0f172a;
+            color: #e2e8f0;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding: 32px 16px;
+            padding: 32px 16px 64px;
         }
 
         .page {
             width: 100%;
-            max-width: 520px;
+            max-width: 540px;
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -28,32 +29,50 @@
         /* Header */
         .header {
             text-align: center;
+            padding-bottom: 4px;
+        }
+        .header-dot {
+            display: inline-block;
+            width: 10px; height: 10px;
+            background: #2563eb;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
         }
         .header h1 {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
-            color: #1a1a2e;
+            color: #f1f5f9;
+            display: inline;
         }
         .header p {
             font-size: 13px;
-            color: #888;
-            margin-top: 4px;
+            color: #64748b;
+            margin-top: 6px;
         }
+        .back-link {
+            display: inline-block;
+            font-size: 12px;
+            color: #64748b;
+            text-decoration: none;
+            margin-bottom: 4px;
+        }
+        .back-link:hover { color: #94a3b8; }
 
         /* Card */
         .card {
-            background: white;
+            background: #1e293b;
             border-radius: 14px;
-            padding: 28px;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.06);
         }
 
         .card-title {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: #888;
+            letter-spacing: 0.08em;
+            color: #64748b;
             margin-bottom: 18px;
         }
 
@@ -65,7 +84,7 @@
             display: block;
             font-size: 13px;
             font-weight: 600;
-            color: #444;
+            color: #94a3b8;
             margin-bottom: 6px;
         }
 
@@ -74,11 +93,11 @@
         .field input[type="date"] {
             width: 100%;
             padding: 11px 14px;
-            border: 1.5px solid #e0e0e0;
+            border: 1.5px solid rgba(255,255,255,0.1);
             border-radius: 8px;
             font-size: 14px;
-            color: #222;
-            background: #fafafa;
+            color: #f1f5f9;
+            background: #0f172a;
             transition: border-color 0.2s, box-shadow 0.2s;
             appearance: auto;
         }
@@ -86,16 +105,29 @@
         .field select:focus,
         .field input:focus {
             outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
-            background: white;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.18);
         }
 
         .field select:disabled,
         .field input:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
         }
+
+        /* Downtime preview */
+        .downtime-preview {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 14px;
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            border-radius: 8px;
+            font-size: 13px;
+            color: #fca5a5;
+        }
+        .downtime-preview.visible { display: block; }
+        .downtime-preview strong { color: #f87171; }
 
         /* Progress section */
         .progress-card { display: none; }
@@ -110,31 +142,29 @@
 
         .progress-label {
             font-size: 13px;
-            color: #555;
+            color: #94a3b8;
             font-weight: 500;
         }
 
         .progress-count {
             font-size: 15px;
             font-weight: 700;
-            color: #1a1a2e;
+            color: #f1f5f9;
         }
 
-        .progress-count span {
-            color: #4f46e5;
-        }
+        .progress-count span { color: #2563eb; }
 
         .progress-bar-bg {
-            background: #e8e8f0;
+            background: rgba(255,255,255,0.08);
             border-radius: 99px;
-            height: 10px;
+            height: 8px;
             overflow: hidden;
         }
 
         .progress-bar-fill {
             height: 100%;
             border-radius: 99px;
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
             transition: width 0.5s ease;
         }
 
@@ -142,16 +172,15 @@
             text-align: center;
             font-size: 13px;
             font-weight: 600;
-            color: #16a34a;
+            color: #4ade80;
             margin-top: 10px;
             display: none;
         }
-
         .progress-complete.visible { display: block; }
 
         .remaining-label {
             font-size: 12px;
-            color: #999;
+            color: #64748b;
             margin-top: 8px;
         }
 
@@ -159,7 +188,7 @@
         .btn-submit {
             width: 100%;
             padding: 13px;
-            background: #4f46e5;
+            background: #2563eb;
             color: white;
             border: none;
             border-radius: 8px;
@@ -170,37 +199,35 @@
             margin-top: 4px;
         }
 
-        .btn-submit:hover:not(:disabled) {
-            background: #4338ca;
+        .btn-submit:hover:not(:disabled) { background: #1d4ed8; }
+        .btn-submit:active:not(:disabled) { transform: scale(0.99); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Loading state */
+        .loading-overlay {
+            text-align: center;
+            padding: 24px 0 8px;
+            color: #64748b;
+            font-size: 13px;
         }
 
-        .btn-submit:active:not(:disabled) {
-            transform: scale(0.99);
-        }
-
-        .btn-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* Toast notification */
+        /* Toast */
         .toast {
             position: fixed;
             bottom: 28px;
             left: 50%;
             transform: translateX(-50%) translateY(80px);
-            background: #1a1a2e;
+            background: #1e293b;
             color: white;
             padding: 12px 22px;
             border-radius: 99px;
             font-size: 14px;
             font-weight: 500;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
             transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
             white-space: nowrap;
             z-index: 100;
         }
-
         .toast.success { background: #16a34a; }
         .toast.error   { background: #dc2626; }
         .toast.show    { transform: translateX(-50%) translateY(0); }
@@ -209,7 +236,7 @@
         .spinner {
             display: inline-block;
             width: 14px; height: 14px;
-            border: 2px solid rgba(255,255,255,0.4);
+            border: 2px solid rgba(255,255,255,0.35);
             border-top-color: white;
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
@@ -217,14 +244,23 @@
             margin-right: 6px;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Error state */
+        .error-msg {
+            text-align: center;
+            color: #f87171;
+            font-size: 13px;
+            padding: 12px 0;
+        }
     </style>
 </head>
 <body>
 <div class="page">
 
     <div class="header">
-        <h1>ISP Uptime Capture</h1>
-        <p>Record uptime hours per provider and time period</p>
+        <a href="/" class="back-link">← Back to Dashboard</a>
+        <h1><span class="header-dot"></span>ISP Uptime Capture</h1>
+        <p>Select a date and time period, then record uptime hours per provider</p>
     </div>
 
     <!-- Step 1: Date & Period -->
@@ -240,9 +276,6 @@
             <label for="inputPeriod">Time Period</label>
             <select id="inputPeriod" onchange="onPeriodChange()">
                 <option value="">— Select period —</option>
-                <option>Sun to Mon</option>
-                <option>Tue to Wed</option>
-                <option>Thur to Fri</option>
             </select>
         </div>
     </div>
@@ -251,7 +284,7 @@
     <div class="card progress-card" id="progressCard">
         <div class="card-title">Capture Progress</div>
         <div class="progress-header">
-            <span class="progress-label" id="progressLabel">Loading...</span>
+            <span class="progress-label" id="progressLabel">Loading…</span>
             <span class="progress-count"><span id="progressCaptured">0</span> / <span id="progressTotal">0</span></span>
         </div>
         <div class="progress-bar-bg">
@@ -262,39 +295,78 @@
     </div>
 
     <!-- Step 2: Record entry -->
-    <div class="card">
+    <div class="card" id="recordCard">
         <div class="card-title">2 — Enter Record</div>
 
-        <div class="field">
-            <label for="inputName">Provider Name</label>
-            <select id="inputName" disabled>
-                <option value="">— Select date & period first —</option>
-            </select>
+        <div id="loadingNames" class="loading-overlay">
+            <span class="spinner"></span> Loading providers…
         </div>
 
-        <div class="field">
-            <label for="inputHours">Uptime Hours <small style="font-weight:400;color:#999">(0 – 24)</small></label>
-            <input type="number" id="inputHours" min="0" max="24" step="0.5"
-                   placeholder="e.g. 18" disabled />
+        <div id="formFields" style="display:none">
+            <div class="field">
+                <label for="inputName">Provider Name</label>
+                <select id="inputName" disabled onchange="onNameChange()">
+                    <option value="">— Select date & period first —</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="inputHours">Uptime Hours <small style="font-weight:400;color:#64748b">(0 – 24)</small></label>
+                <input type="number" id="inputHours" min="0" max="24" step="0.5"
+                       placeholder="e.g. 18" disabled oninput="onHoursChange()" />
+                <div class="downtime-preview" id="downtimePreview"></div>
+            </div>
+
+            <button class="btn-submit" id="btnSubmit" onclick="submitRecord()" disabled>
+                Save Record
+            </button>
         </div>
 
-        <button class="btn-submit" id="btnSubmit" onclick="submitRecord()" disabled>
-            Save Record
-        </button>
+        <div id="errorMsg" class="error-msg" style="display:none"></div>
     </div>
 
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
     // Set default date to today
     document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
 
+    let allNames     = [];
     let progressData = null;
+    let optionsLoaded = false;
 
-    // --- Period changed: load progress + update names dropdown ---
+    // Load time periods and all provider names on page load
+    async function loadOptions() {
+        try {
+            const res  = await fetch('/api/get-options');
+            const data = await res.json();
+
+            // Populate time period dropdown
+            const periodSelect = document.getElementById('inputPeriod');
+            (data.timePeriods || []).forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                periodSelect.appendChild(opt);
+            });
+
+            // Store all names for later use
+            allNames = data.names || [];
+            optionsLoaded = true;
+
+            // Show form fields now that options are loaded
+            document.getElementById('loadingNames').style.display = 'none';
+            document.getElementById('formFields').style.display   = 'block';
+        } catch (e) {
+            document.getElementById('loadingNames').style.display = 'none';
+            document.getElementById('errorMsg').style.display     = 'block';
+            document.getElementById('errorMsg').textContent       = 'Failed to load providers. Please refresh.';
+        }
+    }
+
+    // Period changed: reload progress and update name dropdown
     async function onPeriodChange() {
         const date   = document.getElementById('inputDate').value;
         const period = document.getElementById('inputPeriod').value;
@@ -304,33 +376,68 @@
 
         if (!date || !period) {
             setProgressVisible(false);
+            nameSelect.innerHTML = '<option value="">— Select date & period first —</option>';
             nameSelect.disabled = true;
             hoursInput.disabled = true;
             btn.disabled        = true;
-            nameSelect.innerHTML = '<option value="">— Select date & period first —</option>';
             return;
         }
 
-        // Show progress card in loading state
         setProgressVisible(true);
-        document.getElementById('progressLabel').textContent = 'Loading...';
-        nameSelect.disabled = true;
-        hoursInput.disabled = true;
-        btn.disabled        = true;
+        document.getElementById('progressLabel').textContent = 'Loading…';
 
         try {
-            const res = await fetch(`/api/get-progress?date=${encodeURIComponent(date)}&timePeriod=${encodeURIComponent(period)}`);
+            const res    = await fetch(`/api/get-progress?date=${encodeURIComponent(date)}&timePeriod=${encodeURIComponent(period)}`);
             progressData = await res.json();
             updateProgressUI();
-            populateNames(progressData.remainingNames);
+
+            // Build name dropdown — show all names, mark already-captured ones
+            const captured = new Set(progressData.capturedNames || []);
+            nameSelect.innerHTML = '<option value="">— Select provider —</option>' +
+                allNames.map(n => {
+                    const done = captured.has(n);
+                    return `<option value="${escHtml(n)}" ${done ? 'disabled style="color:#4ade80"' : ''}>${escHtml(n)}${done ? ' ✓' : ''}</option>`;
+                }).join('');
+
+            nameSelect.disabled = progressData.remaining === 0;
+            hoursInput.disabled = true;
+            btn.disabled        = true;
+
         } catch (e) {
             showToast('Failed to load progress', 'error');
         }
     }
 
+    function onNameChange() {
+        const name       = document.getElementById('inputName').value;
+        const hoursInput = document.getElementById('inputHours');
+        const btn        = document.getElementById('btnSubmit');
+        hoursInput.disabled = !name;
+        btn.disabled        = !name || hoursInput.value === '';
+        hoursInput.value    = '';
+        document.getElementById('downtimePreview').classList.remove('visible');
+    }
+
+    function onHoursChange() {
+        const val     = parseFloat(document.getElementById('inputHours').value);
+        const preview = document.getElementById('downtimePreview');
+        const btn     = document.getElementById('btnSubmit');
+        const name    = document.getElementById('inputName').value;
+
+        if (!isNaN(val) && val >= 0 && val <= 24) {
+            const downtime = (24 - val).toFixed(1);
+            preview.innerHTML = `Downtime: <strong>${downtime} hrs</strong> (auto-calculated in Airtable)`;
+            preview.classList.add('visible');
+            btn.disabled = !name;
+        } else {
+            preview.classList.remove('visible');
+            btn.disabled = true;
+        }
+    }
+
     function updateProgressUI() {
         if (!progressData) return;
-        const { total, captured, remaining, remainingNames } = progressData;
+        const { total, captured, remaining } = progressData;
         const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
 
         document.getElementById('progressCaptured').textContent = captured;
@@ -341,100 +448,87 @@
             remaining > 0 ? `${remaining} provider(s) still to capture` : '';
 
         const completeEl = document.getElementById('progressComplete');
-        if (remaining === 0) {
-            completeEl.classList.add('visible');
-        } else {
-            completeEl.classList.remove('visible');
-        }
-    }
-
-    function populateNames(names) {
-        const nameSelect = document.getElementById('inputName');
-        const hoursInput = document.getElementById('inputHours');
-        const btn        = document.getElementById('btnSubmit');
-
-        nameSelect.innerHTML = '';
-
-        if (!names || names.length === 0) {
-            nameSelect.innerHTML = '<option value="">All providers captured</option>';
-            nameSelect.disabled = true;
-            hoursInput.disabled = true;
-            btn.disabled        = true;
-            return;
-        }
-
-        nameSelect.innerHTML = '<option value="">— Select provider —</option>' +
-            names.map(n => `<option value="${escHtml(n)}">${escHtml(n)}</option>`).join('');
-
-        nameSelect.disabled = false;
-        hoursInput.disabled = false;
-        btn.disabled        = false;
+        completeEl.classList.toggle('visible', remaining === 0);
     }
 
     function setProgressVisible(show) {
         document.getElementById('progressCard').classList.toggle('visible', show);
     }
 
-    // --- Submit ---
+    // Submit record
     async function submitRecord() {
-        const date       = document.getElementById('inputDate').value;
-        const period     = document.getElementById('inputPeriod').value;
-        const name       = document.getElementById('inputName').value;
-        const hours      = document.getElementById('inputHours').value;
-        const btn        = document.getElementById('btnSubmit');
+        const date   = document.getElementById('inputDate').value;
+        const period = document.getElementById('inputPeriod').value;
+        const name   = document.getElementById('inputName').value;
+        const hours  = document.getElementById('inputHours').value;
+        const btn    = document.getElementById('btnSubmit');
 
         if (!date || !period || !name || hours === '') {
             showToast('Please fill in all fields', 'error');
             return;
         }
 
-        btn.disabled   = true;
-        btn.innerHTML  = '<span class="spinner"></span>Saving...';
+        btn.disabled  = true;
+        btn.innerHTML = '<span class="spinner"></span>Saving…';
 
         try {
             const res = await fetch('/api/submit-record', {
-                method: 'POST',
+                method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ date, names: name, timePeriod: period, uptimeHours: hours }),
+                body:    JSON.stringify({ date, names: name, timePeriod: period, uptimeHours: hours }),
             });
 
             const data = await res.json();
-
             if (!res.ok) throw new Error(data.error || 'Submission failed');
 
             showToast(`Saved: ${name}`, 'success');
 
-            // Clear hours, reset name selection
+            // Clear inputs
             document.getElementById('inputHours').value = '';
             document.getElementById('inputName').value  = '';
+            document.getElementById('downtimePreview').classList.remove('visible');
 
             // Refresh progress
-            const pRes = await fetch(`/api/get-progress?date=${encodeURIComponent(date)}&timePeriod=${encodeURIComponent(period)}`);
+            const pRes   = await fetch(`/api/get-progress?date=${encodeURIComponent(date)}&timePeriod=${encodeURIComponent(period)}`);
             progressData = await pRes.json();
             updateProgressUI();
-            populateNames(progressData.remainingNames);
+
+            // Update name dropdown to reflect newly captured entry
+            const captured = new Set(progressData.capturedNames || []);
+            const nameSelect = document.getElementById('inputName');
+            nameSelect.innerHTML = '<option value="">— Select provider —</option>' +
+                allNames.map(n => {
+                    const done = captured.has(n);
+                    return `<option value="${escHtml(n)}" ${done ? 'disabled style="color:#4ade80"' : ''}>${escHtml(n)}${done ? ' ✓' : ''}</option>`;
+                }).join('');
+
+            nameSelect.disabled = progressData.remaining === 0;
 
         } catch (e) {
             showToast(e.message, 'error');
-            btn.disabled  = false;
-            btn.innerHTML = 'Save Record';
         }
+
+        btn.disabled  = false;
+        btn.innerHTML = 'Save Record';
     }
 
-    // --- Toast ---
+    // Toast
     let toastTimer;
     function showToast(msg, type = '') {
         const el = document.getElementById('toast');
-        el.textContent  = msg;
-        el.className    = `toast ${type} show`;
+        el.textContent = msg;
+        el.className   = `toast ${type} show`;
         clearTimeout(toastTimer);
         toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
     }
 
-    // --- Util ---
     function escHtml(str) {
-        return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        return String(str).replace(/[&<>"']/g, c =>
+            ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
     }
+
+    // Init
+    loadOptions();
 </script>
 </body>
 </html>
