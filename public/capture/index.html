@@ -14,50 +14,69 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            padding: 32px 16px 64px;
+            padding: 32px 16px 80px;
         }
 
         .page {
             width: 100%;
-            max-width: 540px;
+            max-width: 640px;
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
 
         /* Header */
-        .header {
-            text-align: center;
-            padding-bottom: 4px;
-        }
-        .header-dot {
-            display: inline-block;
-            width: 10px; height: 10px;
-            background: #2563eb;
-            border-radius: 50%;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        .header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            color: #f1f5f9;
-            display: inline;
-        }
-        .header p {
-            font-size: 13px;
-            color: #64748b;
-            margin-top: 6px;
-        }
         .back-link {
             display: inline-block;
             font-size: 12px;
             color: #64748b;
             text-decoration: none;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .back-link:hover { color: #94a3b8; }
+
+        .header { padding-bottom: 2px; }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-dot {
+            width: 10px; height: 10px;
+            background: #2563eb;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        .header p {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        /* How-it-works note */
+        .how-it-works {
+            background: rgba(37, 99, 235, 0.08);
+            border: 1px solid rgba(37, 99, 235, 0.25);
+            border-radius: 10px;
+            padding: 14px 16px;
+            font-size: 13px;
+            color: #93c5fd;
+            line-height: 1.6;
+        }
+        .how-it-works strong {
+            color: #bfdbfe;
+            display: block;
+            margin-bottom: 4px;
+        }
+        .how-it-works ol {
+            padding-left: 18px;
+            color: #7dd3fc;
+        }
+        .how-it-works ol li { margin-top: 2px; }
 
         /* Card */
         .card {
@@ -66,7 +85,6 @@
             padding: 24px;
             border: 1px solid rgba(255,255,255,0.06);
         }
-
         .card-title {
             font-size: 11px;
             font-weight: 700;
@@ -76,23 +94,31 @@
             margin-bottom: 18px;
         }
 
-        /* Form fields */
-        .field { margin-bottom: 16px; }
-        .field:last-child { margin-bottom: 0; }
+        /* Grid for date + period */
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
 
+        /* Form fields */
+        .field { margin-bottom: 14px; }
+        .field:last-child { margin-bottom: 0; }
         .field label {
             display: block;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: #94a3b8;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
-
         .field select,
         .field input[type="number"],
         .field input[type="date"] {
             width: 100%;
-            padding: 11px 14px;
+            padding: 10px 13px;
             border: 1.5px solid rgba(255,255,255,0.1);
             border-radius: 8px;
             font-size: 14px;
@@ -101,94 +127,129 @@
             transition: border-color 0.2s, box-shadow 0.2s;
             appearance: auto;
         }
-
         .field select:focus,
         .field input:focus {
             outline: none;
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgba(37,99,235,0.18);
         }
-
         .field select:disabled,
         .field input:disabled {
-            opacity: 0.4;
+            opacity: 0.38;
             cursor: not-allowed;
         }
+        .field select option { background: #1e293b; }
 
-        /* Downtime preview */
-        .downtime-preview {
-            display: none;
-            margin-top: 10px;
-            padding: 10px 14px;
-            background: rgba(220, 38, 38, 0.1);
-            border: 1px solid rgba(220, 38, 38, 0.25);
+        /* Entry row (name + hours + add btn) */
+        .entry-row {
+            display: grid;
+            grid-template-columns: 1fr 110px auto;
+            gap: 10px;
+            align-items: end;
+        }
+        @media (max-width: 480px) { .entry-row { grid-template-columns: 1fr; } }
+
+        /* Downtime hint */
+        .downtime-hint {
+            font-size: 12px;
+            color: #f87171;
+            margin-top: 5px;
+            min-height: 18px;
+        }
+
+        /* Add button */
+        .btn-add {
+            padding: 10px 18px;
+            background: #2563eb;
+            color: white;
+            border: none;
             border-radius: 8px;
             font-size: 13px;
-            color: #fca5a5;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+            height: 41px;
         }
-        .downtime-preview.visible { display: block; }
-        .downtime-preview strong { color: #f87171; }
+        .btn-add:hover:not(:disabled) { background: #1d4ed8; }
+        .btn-add:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* Progress section */
-        .progress-card { display: none; }
-        .progress-card.visible { display: block; }
-
-        .progress-header {
+        /* Queue section */
+        .queue-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 14px;
         }
-
-        .progress-label {
-            font-size: 13px;
-            color: #94a3b8;
-            font-weight: 500;
-        }
-
-        .progress-count {
-            font-size: 15px;
-            font-weight: 700;
-            color: #f1f5f9;
-        }
-
-        .progress-count span { color: #2563eb; }
-
-        .progress-bar-bg {
-            background: rgba(255,255,255,0.08);
-            border-radius: 99px;
-            height: 8px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            border-radius: 99px;
-            background: linear-gradient(90deg, #2563eb, #7c3aed);
-            transition: width 0.5s ease;
-        }
-
-        .progress-complete {
-            text-align: center;
-            font-size: 13px;
-            font-weight: 600;
-            color: #4ade80;
-            margin-top: 10px;
-            display: none;
-        }
-        .progress-complete.visible { display: block; }
-
-        .remaining-label {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 8px;
-        }
-
-        /* Submit button */
-        .btn-submit {
-            width: 100%;
-            padding: 13px;
+        .queue-badge {
             background: #2563eb;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 99px;
+        }
+
+        .queue-empty {
+            text-align: center;
+            color: #475569;
+            font-size: 13px;
+            padding: 24px 0;
+            border: 1.5px dashed rgba(255,255,255,0.07);
+            border-radius: 8px;
+        }
+
+        /* Queue table */
+        .queue-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .queue-table th {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #475569;
+            padding: 0 10px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .queue-table td {
+            padding: 9px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            vertical-align: middle;
+        }
+        .queue-table tr:last-child td { border-bottom: none; }
+        .queue-table .col-name  { color: #e2e8f0; font-weight: 500; }
+        .queue-table .col-up    { color: #4ade80; font-weight: 600; }
+        .queue-table .col-down  { color: #f87171; font-weight: 600; }
+        .queue-table .col-period{ color: #94a3b8; font-size: 12px; }
+
+        .btn-remove {
+            background: none;
+            border: none;
+            color: #475569;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            line-height: 1;
+            transition: color 0.15s, background 0.15s;
+        }
+        .btn-remove:hover { color: #f87171; background: rgba(220,38,38,0.1); }
+
+        /* Save all section */
+        .save-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-save {
+            flex: 1;
+            padding: 13px;
+            background: #16a34a;
             color: white;
             border: none;
             border-radius: 8px;
@@ -196,20 +257,25 @@
             font-weight: 700;
             cursor: pointer;
             transition: background 0.2s, transform 0.1s;
-            margin-top: 4px;
         }
+        .btn-save:hover:not(:disabled) { background: #15803d; }
+        .btn-save:active:not(:disabled) { transform: scale(0.99); }
+        .btn-save:disabled { opacity: 0.38; cursor: not-allowed; }
 
-        .btn-submit:hover:not(:disabled) { background: #1d4ed8; }
-        .btn-submit:active:not(:disabled) { transform: scale(0.99); }
-        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        /* Loading state */
-        .loading-overlay {
-            text-align: center;
-            padding: 24px 0 8px;
-            color: #64748b;
+        .btn-clear {
+            padding: 13px 16px;
+            background: rgba(220,38,38,0.1);
+            color: #f87171;
+            border: 1px solid rgba(220,38,38,0.2);
+            border-radius: 8px;
             font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
         }
+        .btn-clear:hover:not(:disabled) { background: rgba(220,38,38,0.2); }
+        .btn-clear:disabled { opacity: 0.3; cursor: not-allowed; }
 
         /* Toast */
         .toast {
@@ -227,6 +293,7 @@
             transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
             white-space: nowrap;
             z-index: 100;
+            pointer-events: none;
         }
         .toast.success { background: #16a34a; }
         .toast.error   { background: #dc2626; }
@@ -245,84 +312,114 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Error state */
-        .error-msg {
+        /* Loading / error */
+        .status-row {
             text-align: center;
-            color: #f87171;
             font-size: 13px;
-            padding: 12px 0;
+            color: #64748b;
+            padding: 8px 0;
         }
+        .status-row.error { color: #f87171; }
     </style>
 </head>
 <body>
 <div class="page">
 
-    <div class="header">
+    <div>
         <a href="/" class="back-link">← Back to Dashboard</a>
-        <h1><span class="header-dot"></span>ISP Uptime Capture</h1>
-        <p>Select a date and time period, then record uptime hours per provider</p>
+        <div class="header">
+            <h1><span class="header-dot"></span>ISP Uptime Capture</h1>
+            <p>Queue all entries locally, then save everything to Airtable in one go</p>
+        </div>
     </div>
 
-    <!-- Step 1: Date & Period -->
+    <!-- How it works note -->
+    <div class="how-it-works">
+        <strong>How to use this form</strong>
+        <ol>
+            <li>Choose the capture date and time period</li>
+            <li>Select a provider and enter their uptime hours, then click <strong>Add to Queue</strong></li>
+            <li>Repeat for each provider — they'll appear in the list below</li>
+            <li>When all providers are added, click <strong>Save All to Airtable</strong> — this sends everything in a single request</li>
+        </ol>
+    </div>
+
+    <!-- Step 1: Session settings -->
     <div class="card">
-        <div class="card-title">1 — Select Period</div>
-
-        <div class="field">
-            <label for="inputDate">Capture Date</label>
-            <input type="date" id="inputDate" onchange="onPeriodChange()" />
-        </div>
-
-        <div class="field">
-            <label for="inputPeriod">Time Period</label>
-            <select id="inputPeriod" onchange="onPeriodChange()">
-                <option value="">— Select period —</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- Progress indicator -->
-    <div class="card progress-card" id="progressCard">
-        <div class="card-title">Capture Progress</div>
-        <div class="progress-header">
-            <span class="progress-label" id="progressLabel">Loading…</span>
-            <span class="progress-count"><span id="progressCaptured">0</span> / <span id="progressTotal">0</span></span>
-        </div>
-        <div class="progress-bar-bg">
-            <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
-        </div>
-        <div class="remaining-label" id="remainingLabel"></div>
-        <div class="progress-complete" id="progressComplete">All providers captured for this period!</div>
-    </div>
-
-    <!-- Step 2: Record entry -->
-    <div class="card" id="recordCard">
-        <div class="card-title">2 — Enter Record</div>
-
-        <div id="loadingNames" class="loading-overlay">
-            <span class="spinner"></span> Loading providers…
-        </div>
-
-        <div id="formFields" style="display:none">
+        <div class="card-title">1 — Session Settings</div>
+        <div class="field-row">
             <div class="field">
-                <label for="inputName">Provider Name</label>
-                <select id="inputName" disabled onchange="onNameChange()">
-                    <option value="">— Select date & period first —</option>
+                <label for="inputDate">Capture Date</label>
+                <input type="date" id="inputDate" />
+            </div>
+            <div class="field">
+                <label for="inputPeriod">Time Period</label>
+                <select id="inputPeriod">
+                    <option value="">Loading…</option>
                 </select>
             </div>
+        </div>
+    </div>
 
-            <div class="field">
-                <label for="inputHours">Uptime Hours <small style="font-weight:400;color:#64748b">(0 – 24)</small></label>
-                <input type="number" id="inputHours" min="0" max="24" step="0.5"
-                       placeholder="e.g. 18" disabled oninput="onHoursChange()" />
-                <div class="downtime-preview" id="downtimePreview"></div>
+    <!-- Step 2: Add entries -->
+    <div class="card">
+        <div class="card-title">2 — Add Provider Entry</div>
+
+        <div id="loadingStatus" class="status-row">Loading providers…</div>
+
+        <div id="entryForm" style="display:none">
+            <div class="entry-row">
+                <div class="field" style="margin:0">
+                    <label for="inputName">Provider Name</label>
+                    <select id="inputName">
+                        <option value="">— Select provider —</option>
+                    </select>
+                </div>
+                <div class="field" style="margin:0">
+                    <label for="inputHours">Uptime Hours</label>
+                    <input type="number" id="inputHours" min="0" max="24" step="0.5" placeholder="0 – 24" oninput="onHoursChange()" />
+                </div>
+                <button class="btn-add" id="btnAdd" onclick="addToQueue()" disabled>
+                    + Add
+                </button>
             </div>
+            <div class="downtime-hint" id="downtimeHint"></div>
+        </div>
+    </div>
 
-            <button class="btn-submit" id="btnSubmit" onclick="submitRecord()" disabled>
-                Save Record
-            </button>
+    <!-- Step 3: Queue -->
+    <div class="card">
+        <div class="queue-header">
+            <div class="card-title" style="margin:0">3 — Queue <span class="queue-badge" id="queueBadge">0</span></div>
         </div>
 
-        <div id="errorMsg" class="error-msg" style="display:none"></div>
+        <div id="queueEmpty" class="queue-empty">No entries yet — add providers above</div>
+
+        <table class="queue-table" id="queueTable" style="display:none">
+            <thead>
+                <tr>
+                    <th>Provider</th>
+                    <th>Period</th>
+                    <th>Uptime</th>
+                    <th>Downtime</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="queueBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Step 4: Save all -->
+    <div class="card">
+        <div class="card-title">4 — Save to Airtable</div>
+        <div class="save-section">
+            <button class="btn-save" id="btnSave" onclick="saveAll()" disabled>
+                Save All to Airtable
+            </button>
+            <button class="btn-clear" id="btnClear" onclick="clearQueue()" disabled>
+                Clear Queue
+            </button>
+        </div>
     </div>
 
 </div>
@@ -330,189 +427,181 @@
 <div class="toast" id="toast"></div>
 
 <script>
-    // Set default date to today
+    // ── State ─────────────────────────────────────────────────
+    let allNames = [];
+    let queue    = [];   // { name, timePeriod, uptimeHours, downtimeHours }
+
+    // ── Init ──────────────────────────────────────────────────
     document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
 
-    let allNames     = [];
-    let progressData = null;
-    let optionsLoaded = false;
-
-    // Load time periods and all provider names on page load
     async function loadOptions() {
         try {
             const res  = await fetch('/api/get-options');
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
 
             // Populate time period dropdown
-            const periodSelect = document.getElementById('inputPeriod');
-            (data.timePeriods || []).forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p;
-                opt.textContent = p;
-                periodSelect.appendChild(opt);
-            });
+            const ps = document.getElementById('inputPeriod');
+            ps.innerHTML = '<option value="">— Select period —</option>' +
+                (data.timePeriods || []).map(p => `<option>${escHtml(p)}</option>`).join('');
 
-            // Store all names for later use
+            // Store names
             allNames = data.names || [];
-            optionsLoaded = true;
+            populateNameDropdown();
 
-            // Show form fields now that options are loaded
-            document.getElementById('loadingNames').style.display = 'none';
-            document.getElementById('formFields').style.display   = 'block';
+            document.getElementById('loadingStatus').style.display = 'none';
+            document.getElementById('entryForm').style.display     = 'block';
         } catch (e) {
-            document.getElementById('loadingNames').style.display = 'none';
-            document.getElementById('errorMsg').style.display     = 'block';
-            document.getElementById('errorMsg').textContent       = 'Failed to load providers. Please refresh.';
+            const el = document.getElementById('loadingStatus');
+            el.textContent = 'Failed to load providers — please refresh.';
+            el.classList.add('error');
         }
     }
 
-    // Period changed: reload progress and update name dropdown
-    async function onPeriodChange() {
-        const date   = document.getElementById('inputDate').value;
-        const period = document.getElementById('inputPeriod').value;
-        const nameSelect = document.getElementById('inputName');
-        const hoursInput = document.getElementById('inputHours');
-        const btn        = document.getElementById('btnSubmit');
-
-        if (!date || !period) {
-            setProgressVisible(false);
-            nameSelect.innerHTML = '<option value="">— Select date & period first —</option>';
-            nameSelect.disabled = true;
-            hoursInput.disabled = true;
-            btn.disabled        = true;
-            return;
-        }
-
-        setProgressVisible(true);
-        document.getElementById('progressLabel').textContent = 'Loading…';
-
-        try {
-            const res    = await fetch(`/api/get-progress?date=${encodeURIComponent(date)}&timePeriod=${encodeURIComponent(period)}`);
-            progressData = await res.json();
-            updateProgressUI();
-
-            // Build name dropdown — show all names, mark already-captured ones
-            const captured = new Set(progressData.capturedNames || []);
-            nameSelect.innerHTML = '<option value="">— Select provider —</option>' +
-                allNames.map(n => {
-                    const done = captured.has(n);
-                    return `<option value="${escHtml(n)}" ${done ? 'disabled style="color:#4ade80"' : ''}>${escHtml(n)}${done ? ' ✓' : ''}</option>`;
-                }).join('');
-
-            nameSelect.disabled = progressData.remaining === 0;
-            hoursInput.disabled = true;
-            btn.disabled        = true;
-
-        } catch (e) {
-            showToast('Failed to load progress', 'error');
-        }
+    function populateNameDropdown() {
+        const inQueue = new Set(queue.map(e => e.name));
+        const ns = document.getElementById('inputName');
+        ns.innerHTML = '<option value="">— Select provider —</option>' +
+            allNames.map(n => {
+                const queued = inQueue.has(n);
+                return `<option value="${escHtml(n)}" ${queued ? 'disabled' : ''}>${escHtml(n)}${queued ? ' (queued)' : ''}</option>`;
+            }).join('');
+        updateAddBtn();
     }
 
-    function onNameChange() {
-        const name       = document.getElementById('inputName').value;
-        const hoursInput = document.getElementById('inputHours');
-        const btn        = document.getElementById('btnSubmit');
-        hoursInput.disabled = !name;
-        btn.disabled        = !name || hoursInput.value === '';
-        hoursInput.value    = '';
-        document.getElementById('downtimePreview').classList.remove('visible');
-    }
-
+    // ── Entry form ────────────────────────────────────────────
     function onHoursChange() {
-        const val     = parseFloat(document.getElementById('inputHours').value);
-        const preview = document.getElementById('downtimePreview');
-        const btn     = document.getElementById('btnSubmit');
-        const name    = document.getElementById('inputName').value;
-
+        const val  = parseFloat(document.getElementById('inputHours').value);
+        const hint = document.getElementById('downtimeHint');
         if (!isNaN(val) && val >= 0 && val <= 24) {
-            const downtime = (24 - val).toFixed(1);
-            preview.innerHTML = `Downtime: <strong>${downtime} hrs</strong> (auto-calculated in Airtable)`;
-            preview.classList.add('visible');
-            btn.disabled = !name;
+            hint.textContent = `Downtime: ${(24 - val).toFixed(1)} hrs (auto-calculated by Airtable)`;
         } else {
-            preview.classList.remove('visible');
-            btn.disabled = true;
+            hint.textContent = '';
         }
+        updateAddBtn();
     }
 
-    function updateProgressUI() {
-        if (!progressData) return;
-        const { total, captured, remaining } = progressData;
-        const pct = total > 0 ? Math.round((captured / total) * 100) : 0;
-
-        document.getElementById('progressCaptured').textContent = captured;
-        document.getElementById('progressTotal').textContent    = total;
-        document.getElementById('progressFill').style.width     = pct + '%';
-        document.getElementById('progressLabel').textContent    = `${pct}% complete`;
-        document.getElementById('remainingLabel').textContent   =
-            remaining > 0 ? `${remaining} provider(s) still to capture` : '';
-
-        const completeEl = document.getElementById('progressComplete');
-        completeEl.classList.toggle('visible', remaining === 0);
+    function updateAddBtn() {
+        const name  = document.getElementById('inputName').value;
+        const hours = document.getElementById('inputHours').value;
+        const val   = parseFloat(hours);
+        document.getElementById('btnAdd').disabled =
+            !name || hours === '' || isNaN(val) || val < 0 || val > 24;
     }
 
-    function setProgressVisible(show) {
-        document.getElementById('progressCard').classList.toggle('visible', show);
-    }
+    document.getElementById('inputName').addEventListener('change', updateAddBtn);
 
-    // Submit record
-    async function submitRecord() {
+    function addToQueue() {
         const date   = document.getElementById('inputDate').value;
         const period = document.getElementById('inputPeriod').value;
         const name   = document.getElementById('inputName').value;
-        const hours  = document.getElementById('inputHours').value;
-        const btn    = document.getElementById('btnSubmit');
+        const hours  = parseFloat(document.getElementById('inputHours').value);
 
-        if (!date || !period || !name || hours === '') {
-            showToast('Please fill in all fields', 'error');
+        if (!date)   { showToast('Please select a capture date', 'error'); return; }
+        if (!period) { showToast('Please select a time period', 'error'); return; }
+        if (!name)   { showToast('Please select a provider', 'error'); return; }
+        if (isNaN(hours) || hours < 0 || hours > 24) { showToast('Enter valid uptime hours (0–24)', 'error'); return; }
+
+        // Prevent duplicate name in queue
+        if (queue.some(e => e.name === name && e.timePeriod === period)) {
+            showToast(`${name} already in queue for this period`, 'error');
             return;
         }
 
+        queue.push({ date, name, timePeriod: period, uptimeHours: hours, downtimeHours: parseFloat((24 - hours).toFixed(1)) });
+
+        // Reset entry inputs
+        document.getElementById('inputName').value  = '';
+        document.getElementById('inputHours').value = '';
+        document.getElementById('downtimeHint').textContent = '';
+
+        populateNameDropdown();
+        renderQueue();
+        showToast(`${name} added to queue`, 'success');
+    }
+
+    // ── Queue rendering ───────────────────────────────────────
+    function renderQueue() {
+        const badge   = document.getElementById('queueBadge');
+        const empty   = document.getElementById('queueEmpty');
+        const table   = document.getElementById('queueTable');
+        const body    = document.getElementById('queueBody');
+        const btnSave  = document.getElementById('btnSave');
+        const btnClear = document.getElementById('btnClear');
+
+        badge.textContent = queue.length;
+
+        if (queue.length === 0) {
+            empty.style.display = 'block';
+            table.style.display = 'none';
+            btnSave.disabled  = true;
+            btnClear.disabled = true;
+            btnSave.textContent = 'Save All to Airtable';
+            return;
+        }
+
+        empty.style.display = 'none';
+        table.style.display = 'table';
+        btnSave.disabled  = false;
+        btnClear.disabled = false;
+        btnSave.textContent = `Save All to Airtable (${queue.length} record${queue.length !== 1 ? 's' : ''})`;
+
+        body.innerHTML = queue.map((e, i) => `
+            <tr>
+                <td class="col-name">${escHtml(e.name)}</td>
+                <td class="col-period">${escHtml(e.timePeriod)}</td>
+                <td class="col-up">${e.uptimeHours} hrs</td>
+                <td class="col-down">${e.downtimeHours} hrs</td>
+                <td><button class="btn-remove" onclick="removeFromQueue(${i})" title="Remove">✕</button></td>
+            </tr>
+        `).join('');
+    }
+
+    function removeFromQueue(index) {
+        const removed = queue.splice(index, 1)[0];
+        populateNameDropdown();
+        renderQueue();
+        showToast(`${removed.name} removed`, '');
+    }
+
+    function clearQueue() {
+        if (queue.length === 0) return;
+        if (!confirm(`Clear all ${queue.length} queued entries?`)) return;
+        queue = [];
+        populateNameDropdown();
+        renderQueue();
+    }
+
+    // ── Save all ──────────────────────────────────────────────
+    async function saveAll() {
+        if (queue.length === 0) return;
+
+        const btn = document.getElementById('btnSave');
         btn.disabled  = true;
-        btn.innerHTML = '<span class="spinner"></span>Saving…';
+        btn.innerHTML = `<span class="spinner"></span>Saving ${queue.length} records…`;
 
         try {
-            const res = await fetch('/api/submit-record', {
+            const res = await fetch('/api/batch-submit', {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify({ date, names: name, timePeriod: period, uptimeHours: hours }),
+                body:    JSON.stringify({ records: queue }),
             });
 
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Submission failed');
+            if (!res.ok) throw new Error(data.error || 'Save failed');
 
-            showToast(`Saved: ${name}`, 'success');
-
-            // Clear inputs
-            document.getElementById('inputHours').value = '';
-            document.getElementById('inputName').value  = '';
-            document.getElementById('downtimePreview').classList.remove('visible');
-
-            // Refresh progress
-            const pRes   = await fetch(`/api/get-progress?date=${encodeURIComponent(date)}&timePeriod=${encodeURIComponent(period)}`);
-            progressData = await pRes.json();
-            updateProgressUI();
-
-            // Update name dropdown to reflect newly captured entry
-            const captured = new Set(progressData.capturedNames || []);
-            const nameSelect = document.getElementById('inputName');
-            nameSelect.innerHTML = '<option value="">— Select provider —</option>' +
-                allNames.map(n => {
-                    const done = captured.has(n);
-                    return `<option value="${escHtml(n)}" ${done ? 'disabled style="color:#4ade80"' : ''}>${escHtml(n)}${done ? ' ✓' : ''}</option>`;
-                }).join('');
-
-            nameSelect.disabled = progressData.remaining === 0;
-
+            showToast(`${data.saved} records saved to Airtable!`, 'success');
+            queue = [];
+            populateNameDropdown();
+            renderQueue();
         } catch (e) {
             showToast(e.message, 'error');
+            btn.disabled  = false;
+            btn.innerHTML = `Save All to Airtable (${queue.length} records)`;
         }
-
-        btn.disabled  = false;
-        btn.innerHTML = 'Save Record';
     }
 
-    // Toast
+    // ── Utilities ─────────────────────────────────────────────
     let toastTimer;
     function showToast(msg, type = '') {
         const el = document.getElementById('toast');
@@ -527,8 +616,9 @@
             ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
     }
 
-    // Init
+    // ── Start ─────────────────────────────────────────────────
     loadOptions();
+    renderQueue();
 </script>
 </body>
 </html>
