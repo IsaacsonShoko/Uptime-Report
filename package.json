@@ -1,0 +1,21 @@
+{
+  "name": "uptime-monitor",
+  "version": "1.0.0",
+  "description": "ISP Uptime and Downtime Monitoring App",
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "netlify build",
+    "start": "netlify dev",
+    "upload": "node scripts/upload-report.js",
+    "ppt": "node scripts/generate-ppt.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "pptxgenjs": "^4.0.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}

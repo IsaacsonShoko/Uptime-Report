@@ -1,0 +1,17 @@
+[build]
+  functions  = "netlify/functions"
+  publish    = "public"
+
+[functions]
+  node_bundler = "esbuild"
+
+[dev]
+  framework = "#static"
+  publish   = "public"
+  port      = 8888
+  targetPort = 3000
+
+[[redirects]]
+  from   = "/api/*"
+  to     = "/.netlify/functions/:splat"
+  status = 200
