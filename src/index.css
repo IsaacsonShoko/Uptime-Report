@@ -113,20 +113,6 @@ body {
   gap: 12px;
 }
 
-.capture-btn {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 14px;
-  background: var(--accent);
-  color: #fff;
-  border-radius: var(--radius-sm);
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-decoration: none;
-  letter-spacing: 0.03em;
-  transition: background 0.2s;
-}
-.capture-btn:hover { background: #1d4ed8; }
 
 .date-label {
   font-size: 0.72rem;
@@ -230,6 +216,17 @@ body {
 
 .tab-btn.active::after {
   background: var(--accent);
+}
+
+.tab-btn--capture {
+  text-decoration: none;
+  border-right: 1px solid var(--border);
+  margin-right: 4px;
+  color: #93c5fd;
+}
+.tab-btn--capture:hover {
+  color: #bfdbfe;
+  background: rgba(37,99,235,0.1);
 }
 
 .tab-dot {

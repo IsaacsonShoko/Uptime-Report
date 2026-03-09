@@ -123,9 +123,6 @@ export default function App() {
           ISP Uptime Monitor
         </h1>
         <div className="header-right">
-          <a href="/capture" className="capture-btn" target="_blank" rel="noopener noreferrer">
-            + Capture Data
-          </a>
           <span className="date-label">Report Date</span>
           <select
             className="date-select"
@@ -141,6 +138,10 @@ export default function App() {
 
       {/* ── Sticky Tab Nav ── */}
       <nav className="tab-nav">
+        <a href="/capture" className="tab-btn tab-btn--capture">
+          <span className="tab-dot" style={{ background: '#2563EB' }} />
+          Capture Data
+        </a>
         {TABS.map((t) => (
           <button
             key={t.id}
