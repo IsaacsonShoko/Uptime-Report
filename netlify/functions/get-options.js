@@ -2,17 +2,16 @@ import fetch from 'node-fetch';
 
 const TIME_PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 
-export default async (req, res) => {
+export const handler = async () => {
     try {
         const apiKey = process.env.AIRTABLE_API_KEY;
         const baseId = process.env.AIRTABLE_BASE_ID;
         const table  = process.env.AIRTABLE_TABLE_NAME || 'Uptime Report';
 
         if (!apiKey || !baseId) {
-            return res.status(400).json({ error: 'Missing Airtable credentials' });
+            return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Missing Airtable credentials' }) };
         }
 
-        // Fetch all records, only the Names field
         let allNames = new Set();
         let offset   = null;
 
@@ -35,12 +34,13 @@ export default async (req, res) => {
             offset = data.offset || null;
         } while (offset);
 
-        res.status(200).json({
-            names:       [...allNames].sort(),
-            timePeriods: TIME_PERIODS,
-        });
+        return {
+            statusCode: 200,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ names: [...allNames].sort(), timePeriods: TIME_PERIODS }),
+        };
     } catch (error) {
         console.error('Error getting options:', error.message);
-        res.status(500).json({ error: 'Failed to get options' });
+        return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Failed to get options' }) };
     }
 };

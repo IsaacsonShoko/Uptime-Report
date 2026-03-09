@@ -1,20 +1,20 @@
 import fetch from 'node-fetch';
 
-export default async (req, res) => {
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+export const handler = async (event) => {
+    if (event.httpMethod !== 'POST') {
+        return { statusCode: 405, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Method not allowed' }) };
     }
 
     try {
-        const { date, names, timePeriod, uptimeHours } = req.body;
+        const { date, names, timePeriod, uptimeHours } = JSON.parse(event.body || '{}');
 
         if (!date || !names || !timePeriod || uptimeHours === undefined || uptimeHours === '') {
-            return res.status(400).json({ error: 'Missing required fields' });
+            return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Missing required fields' }) };
         }
 
         const hours = parseFloat(uptimeHours);
         if (isNaN(hours) || hours < 0 || hours > 24) {
-            return res.status(400).json({ error: 'Uptime Hours must be a number between 0 and 24' });
+            return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Uptime Hours must be a number between 0 and 24' }) };
         }
 
         const apiKey = process.env.AIRTABLE_API_KEY;
@@ -22,7 +22,7 @@ export default async (req, res) => {
         const table  = process.env.AIRTABLE_TABLE_NAME || 'Uptime Report';
 
         if (!apiKey || !baseId) {
-            return res.status(500).json({ error: 'Missing Airtable credentials' });
+            return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Missing Airtable credentials' }) };
         }
 
         const body = {
@@ -54,9 +54,9 @@ export default async (req, res) => {
         }
 
         const result = await airtableRes.json();
-        res.status(200).json({ success: true, record: result.records[0] });
+        return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ success: true, record: result.records[0] }) };
     } catch (error) {
         console.error('Submit error:', error.message);
-        res.status(500).json({ error: error.message });
+        return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: error.message }) };
     }
 };

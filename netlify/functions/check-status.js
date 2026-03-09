@@ -68,7 +68,7 @@ async function writeToAirtable(data) {
     }
 }
 
-export default async (req, res) => {
+export const handler = async () => {
     try {
         const statusData = await checkConnectivity();
 
@@ -78,12 +78,20 @@ export default async (req, res) => {
             console.error('Airtable write failed:', error.message);
         }
 
-        res.status(200).json({
-            status:       statusData.status,
-            responseTime: statusData.responseTime,
-            timestamp:    new Date().toISOString(),
-        });
+        return {
+            statusCode: 200,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                status:       statusData.status,
+                responseTime: statusData.responseTime,
+                timestamp:    new Date().toISOString(),
+            }),
+        };
     } catch (error) {
-        res.status(500).json({ error: 'Failed to check status', message: error.message });
+        return {
+            statusCode: 500,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Failed to check status', message: error.message }),
+        };
     }
 };

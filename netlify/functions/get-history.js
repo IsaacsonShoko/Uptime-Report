@@ -1,13 +1,13 @@
 import fetch from 'node-fetch';
 
-export default async (req, res) => {
+export const handler = async (event) => {
     try {
         const apiKey = process.env.AIRTABLE_API_KEY;
         const baseId = process.env.AIRTABLE_BASE_ID;
         const table  = process.env.AIRTABLE_TABLE_NAME || 'Uptime Report';
 
         if (!apiKey || !baseId) {
-            return res.status(400).json({ error: 'Missing Airtable credentials' });
+            return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Missing Airtable credentials' }) };
         }
 
         const url = new URL(`https://api.airtable.com/v0/${baseId}/${encodeURIComponent(table)}`);
@@ -38,9 +38,9 @@ export default async (req, res) => {
             };
         });
 
-        res.status(200).json(history);
+        return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(history) };
     } catch (error) {
         console.error('Error getting history:', error.message);
-        res.status(500).json({ error: 'Failed to get history' });
+        return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Failed to get history' }) };
     }
 };

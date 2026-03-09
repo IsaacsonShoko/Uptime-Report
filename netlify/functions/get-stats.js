@@ -22,17 +22,18 @@ function calculateStats(records) {
     return { uptime, outageCount: offlineCount, avgDowntime, longestOutage: avgDowntime };
 }
 
-export default async (req, res) => {
+export const handler = async () => {
     try {
         const apiKey = process.env.AIRTABLE_API_KEY;
         const baseId = process.env.AIRTABLE_BASE_ID;
         const table  = process.env.AIRTABLE_TABLE_NAME || 'Uptime Report';
 
         if (!apiKey || !baseId) {
-            return res.status(400).json({
-                error: 'Missing Airtable credentials',
-                uptime: 0, outageCount: 0, avgDowntime: 0, longestOutage: 0,
-            });
+            return {
+                statusCode: 400,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'Missing Airtable credentials', uptime: 0, outageCount: 0, avgDowntime: 0, longestOutage: 0 }),
+            };
         }
 
         const sevenDaysAgo = new Date();
@@ -53,12 +54,13 @@ export default async (req, res) => {
         const data  = await response.json();
         const stats = calculateStats(data.records || []);
 
-        res.status(200).json(stats);
+        return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(stats) };
     } catch (error) {
         console.error('Error getting stats:', error.message);
-        res.status(500).json({
-            error: 'Failed to get statistics',
-            uptime: 0, outageCount: 0, avgDowntime: 0, longestOutage: 0,
-        });
+        return {
+            statusCode: 500,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Failed to get statistics', uptime: 0, outageCount: 0, avgDowntime: 0, longestOutage: 0 }),
+        };
     }
 };

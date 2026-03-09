@@ -1,11 +1,11 @@
 import fetch from 'node-fetch';
 
-export default async (req, res) => {
+export const handler = async (event) => {
     try {
-        const { date, timePeriod } = req.query;
+        const { date, timePeriod } = event.queryStringParameters || {};
 
         if (!date || !timePeriod) {
-            return res.status(400).json({ error: 'date and timePeriod are required' });
+            return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'date and timePeriod are required' }) };
         }
 
         const apiKey = process.env.AIRTABLE_API_KEY;
@@ -13,15 +13,13 @@ export default async (req, res) => {
         const table  = process.env.AIRTABLE_TABLE_NAME || 'Uptime Report';
 
         if (!apiKey || !baseId) {
-            return res.status(500).json({ error: 'Missing Airtable credentials' });
+            return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Missing Airtable credentials' }) };
         }
 
-        // Fetch all unique Names (to know total expected)
-        const allNamesSet    = new Set();
-        const capturedNames  = new Set();
-        let offset           = null;
+        const allNamesSet   = new Set();
+        const capturedNames = new Set();
+        let offset          = null;
 
-        // Single pass — get all records, collect all names + captured ones for this date/period
         do {
             const url = new URL(`https://api.airtable.com/v0/${baseId}/${encodeURIComponent(table)}`);
             url.searchParams.set('fields[]', 'Names');
@@ -51,19 +49,23 @@ export default async (req, res) => {
             offset = data.offset || null;
         } while (offset);
 
-        const allNames       = [...allNamesSet].sort();
-        const captured       = [...capturedNames].sort();
-        const remaining      = allNames.filter(n => !capturedNames.has(n));
+        const allNames  = [...allNamesSet].sort();
+        const captured  = [...capturedNames].sort();
+        const remaining = allNames.filter(n => !capturedNames.has(n));
 
-        res.status(200).json({
-            total:     allNames.length,
-            captured:  captured.length,
-            remaining: remaining.length,
-            capturedNames,   // names already done for this date/period
-            remainingNames: remaining, // names still to capture
-        });
+        return {
+            statusCode: 200,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                total:          allNames.length,
+                captured:       captured.length,
+                remaining:      remaining.length,
+                capturedNames:  captured,
+                remainingNames: remaining,
+            }),
+        };
     } catch (error) {
         console.error('Progress error:', error.message);
-        res.status(500).json({ error: error.message });
+        return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: error.message }) };
     }
 };

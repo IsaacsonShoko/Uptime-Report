@@ -33,7 +33,6 @@ function aggregate(normalized) {
         const rows = normalized.filter(r => r.timePeriod === period);
         if (!rows.length) continue;
 
-        // Latest record per site for this period
         const siteMap = {};
         for (const row of rows) {
             if (!siteMap[row.name] || row.date > siteMap[row.name].date) siteMap[row.name] = row;
@@ -53,7 +52,6 @@ function aggregate(normalized) {
         periods[period] = { count: latest.length, avgAvailability, avgUptimeHours, avgDowntimeHours, bands, sites };
     }
 
-    // Band details
     const bandDetails = { green: {}, amber: {}, red: {} };
     for (const period of PERIODS) {
         if (!periods[period]) continue;
@@ -68,7 +66,6 @@ function aggregate(normalized) {
         }
     }
 
-    // Top performers
     const activePeriods  = PERIODS.filter(p => periods[p]);
     const siteByPeriod   = {};
     for (const period of activePeriods) {
@@ -82,7 +79,6 @@ function aggregate(normalized) {
         return activePeriods.every(p => a[p] != null && a[p] >= 100);
     }).sort();
 
-    // Sites needing attention
     const sitesNeedingAttention = allNames.map(n => {
         const a    = siteByPeriod[n] || {};
         const vals = activePeriods.map(p => a[p]).filter(v => v != null);
@@ -105,13 +101,15 @@ function aggregate(normalized) {
     return { totalSites, overallAvgAvailability, periods, bandDetails, topPerformers, sitesNeedingAttention };
 }
 
-export default async (req, res) => {
+export const handler = async (event) => {
     try {
         const apiKey = process.env.AIRTABLE_API_KEY;
         const baseId = process.env.AIRTABLE_BASE_ID;
         const table  = process.env.AIRTABLE_TABLE_NAME || 'Uptime Report';
 
-        if (!apiKey || !baseId) return res.status(400).json({ error: 'Missing Airtable credentials' });
+        if (!apiKey || !baseId) {
+            return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Missing Airtable credentials' }) };
+        }
 
         const raw = await fetchAllRecords(apiKey, baseId, table);
 
@@ -126,24 +124,15 @@ export default async (req, res) => {
             return { date, name, timePeriod, uptimeHours, downtime: Math.max(0, 24 - uptimeHours) };
         }).filter(Boolean);
 
-        // All available dates (for the date filter dropdown)
         const availableDates = [...new Set(normalized.map(r => r.date).filter(Boolean))].sort().reverse();
+        const requestedDate  = event.queryStringParameters?.date || availableDates[0] || '';
+        const filtered       = requestedDate ? normalized.filter(r => r.date === requestedDate) : normalized;
 
-        // Requested date — default to latest
-        const requestedDate = req.query?.date || availableDates[0] || '';
-        const filtered      = requestedDate
-            ? normalized.filter(r => r.date === requestedDate)
-            : normalized;
+        const payload = { date: requestedDate, availableDates, ...aggregate(filtered) };
 
-        const payload = {
-            date:  requestedDate,
-            availableDates,
-            ...aggregate(filtered),
-        };
-
-        res.status(200).json(payload);
+        return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) };
     } catch (err) {
         console.error('get-dashboard error:', err.message);
-        res.status(500).json({ error: err.message });
+        return { statusCode: 500, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: err.message }) };
     }
 };
