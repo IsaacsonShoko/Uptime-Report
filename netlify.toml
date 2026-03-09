@@ -1,17 +1,31 @@
 [build]
+  command    = "vite build"
   functions  = "netlify/functions"
-  publish    = "public"
+  publish    = "dist"
 
 [functions]
   node_bundler = "esbuild"
 
 [dev]
-  framework = "#static"
-  publish   = "public"
-  port      = 8888
+  framework  = "vite"
+  command    = "vite"
+  port       = 8888
   targetPort = 3000
+  publish    = "dist"
 
 [[redirects]]
   from   = "/api/*"
   to     = "/.netlify/functions/:splat"
+  status = 200
+
+# Legacy capture form (vanilla HTML) lives at public/capture/index.html
+[[redirects]]
+  from   = "/capture"
+  to     = "/capture/index.html"
+  status = 200
+
+# SPA fallback — React dashboard handles all other routes
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
   status = 200
