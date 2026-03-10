@@ -34,7 +34,9 @@ export const handler = async (event) => {
                 records: chunk.map(r => ({
                     fields: {
                         Date:           r.date,
-                        Names:          r.name,
+                        Names:          r.deviceName || r.name,
+                        'Client Name':  r.clientName  || '',
+                        Location:       r.location    || '',
                         'Time Period':  r.timePeriod,
                         'Uptime Hours': parseFloat(r.uptimeHours),
                     },

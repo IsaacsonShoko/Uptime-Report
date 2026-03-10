@@ -25,7 +25,6 @@
             gap: 20px;
         }
 
-        /* Header */
         .back-link {
             display: inline-block;
             font-size: 12px;
@@ -57,7 +56,6 @@
             margin-top: 5px;
         }
 
-        /* How-it-works note */
         .how-it-works {
             background: rgba(37, 99, 235, 0.08);
             border: 1px solid rgba(37, 99, 235, 0.25);
@@ -78,7 +76,6 @@
         }
         .how-it-works ol li { margin-top: 2px; }
 
-        /* Card */
         .card {
             background: #1e293b;
             border-radius: 14px;
@@ -94,7 +91,6 @@
             margin-bottom: 18px;
         }
 
-        /* Grid for date + period */
         .field-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -102,7 +98,6 @@
         }
         @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
 
-        /* Form fields */
         .field { margin-bottom: 14px; }
         .field:last-child { margin-bottom: 0; }
         .field label {
@@ -140,16 +135,22 @@
         }
         .field select option { background: #1e293b; }
 
-        /* Entry row (name + hours + add btn) */
-        .entry-row {
+        .cascade-arrow {
+            text-align: center;
+            color: #334155;
+            font-size: 18px;
+            margin: -4px 0;
+            user-select: none;
+        }
+
+        .hours-row {
             display: grid;
-            grid-template-columns: 1fr 110px auto;
+            grid-template-columns: 1fr auto;
             gap: 10px;
             align-items: end;
+            margin-top: 14px;
         }
-        @media (max-width: 480px) { .entry-row { grid-template-columns: 1fr; } }
 
-        /* Downtime hint */
         .downtime-hint {
             font-size: 12px;
             color: #f87171;
@@ -157,7 +158,6 @@
             min-height: 18px;
         }
 
-        /* Add button */
         .btn-add {
             padding: 10px 18px;
             background: #2563eb;
@@ -174,7 +174,6 @@
         .btn-add:hover:not(:disabled) { background: #1d4ed8; }
         .btn-add:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* Queue section */
         .queue-header {
             display: flex;
             justify-content: space-between;
@@ -199,7 +198,6 @@
             border-radius: 8px;
         }
 
-        /* Queue table */
         .queue-table {
             width: 100%;
             border-collapse: collapse;
@@ -221,10 +219,11 @@
             vertical-align: middle;
         }
         .queue-table tr:last-child td { border-bottom: none; }
-        .queue-table .col-name  { color: #e2e8f0; font-weight: 500; }
-        .queue-table .col-up    { color: #4ade80; font-weight: 600; }
-        .queue-table .col-down  { color: #f87171; font-weight: 600; }
-        .queue-table .col-period{ color: #94a3b8; font-size: 12px; }
+        .queue-table .col-client { color: #e2e8f0; font-weight: 600; }
+        .queue-table .col-device { color: #94a3b8; font-size: 11px; font-family: monospace; }
+        .queue-table .col-up     { color: #4ade80; font-weight: 600; }
+        .queue-table .col-down   { color: #f87171; font-weight: 600; }
+        .queue-table .col-period { color: #94a3b8; font-size: 12px; }
 
         .btn-remove {
             background: none;
@@ -239,7 +238,6 @@
         }
         .btn-remove:hover { color: #f87171; background: rgba(220,38,38,0.1); }
 
-        /* Save all section */
         .save-section {
             display: flex;
             align-items: center;
@@ -277,7 +275,6 @@
         .btn-clear:hover:not(:disabled) { background: rgba(220,38,38,0.2); }
         .btn-clear:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 28px;
@@ -299,7 +296,6 @@
         .toast.error   { background: #dc2626; }
         .toast.show    { transform: translateX(-50%) translateY(0); }
 
-        /* Spinner */
         .spinner {
             display: inline-block;
             width: 14px; height: 14px;
@@ -312,7 +308,6 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Loading / error */
         .status-row {
             text-align: center;
             font-size: 13px;
@@ -333,14 +328,13 @@
         </div>
     </div>
 
-    <!-- How it works note -->
     <div class="how-it-works">
         <strong>How to use this form</strong>
         <ol>
-            <li>Choose the capture date and time period</li>
-            <li>Select a provider and enter their uptime hours, then click <strong>Add to Queue</strong></li>
-            <li>Repeat for each provider — they'll appear in the list below</li>
-            <li>When all providers are added, click <strong>Save All to Airtable</strong> — this sends everything in a single request</li>
+            <li>Set the capture date and time period</li>
+            <li>Select a Location, then Client Name, then Device — enter uptime hours and click <strong>Add to Queue</strong></li>
+            <li>Repeat for every device</li>
+            <li>When done, click <strong>Save All to Airtable</strong> — one batch request sends everything</li>
         </ol>
     </div>
 
@@ -363,31 +357,45 @@
 
     <!-- Step 2: Add entries -->
     <div class="card">
-        <div class="card-title">2 — Add Provider Entry</div>
+        <div class="card-title">2 — Add Entry</div>
 
-        <div id="loadingStatus" class="status-row">Loading providers…</div>
+        <div id="loadingStatus" class="status-row">Loading options…</div>
 
         <div id="entryForm" style="display:none">
-            <div class="field" style="margin:0">
-                    <label for="inputLocation">Filter by Location</label>
-                    <select id="inputLocation" onchange="populateNameDropdown()">
-                        <option value="">— All locations —</option>
-                    </select>
-                </div>
-            <div class="entry-row">
+
+            <!-- Location -->
+            <div class="field">
+                <label for="inputLocation">Location</label>
+                <select id="inputLocation" onchange="onLocationChange()">
+                    <option value="">— Select location —</option>
+                </select>
+            </div>
+
+            <div class="cascade-arrow">↓</div>
+
+            <!-- Client Name -->
+            <div class="field">
+                <label for="inputClient">Client Name</label>
+                <select id="inputClient" disabled onchange="onClientChange()">
+                    <option value="">— Select client —</option>
+                </select>
+            </div>
+
+            <div class="cascade-arrow">↓</div>
+
+            <!-- Device Name + Hours + Add -->
+            <div class="hours-row">
                 <div class="field" style="margin:0">
-                    <label for="inputName">Provider Name</label>
-                    <select id="inputName">
-                        <option value="">— Select provider —</option>
+                    <label for="inputDevice">Device Name</label>
+                    <select id="inputDevice" disabled onchange="updateAddBtn()">
+                        <option value="">— Select device —</option>
                     </select>
                 </div>
                 <div class="field" style="margin:0">
                     <label for="inputHours">Uptime Hours</label>
-                    <input type="number" id="inputHours" min="0" max="24" step="0.5" placeholder="0 – 24" oninput="onHoursChange()" />
+                    <input type="number" id="inputHours" min="0" max="24" step="0.5" placeholder="0–24" oninput="onHoursChange()" disabled />
                 </div>
-                <button class="btn-add" id="btnAdd" onclick="addToQueue()" disabled>
-                    + Add
-                </button>
+                <button class="btn-add" id="btnAdd" onclick="addToQueue()" disabled>+ Add</button>
             </div>
             <div class="downtime-hint" id="downtimeHint"></div>
         </div>
@@ -399,15 +407,16 @@
             <div class="card-title" style="margin:0">3 — Queue <span class="queue-badge" id="queueBadge">0</span></div>
         </div>
 
-        <div id="queueEmpty" class="queue-empty">No entries yet — add providers above</div>
+        <div id="queueEmpty" class="queue-empty">No entries yet — add devices above</div>
 
         <table class="queue-table" id="queueTable" style="display:none">
             <thead>
                 <tr>
-                    <th>Provider</th>
+                    <th>Client</th>
+                    <th>Device</th>
                     <th>Period</th>
-                    <th>Uptime</th>
-                    <th>Downtime</th>
+                    <th>Up</th>
+                    <th>Down</th>
                     <th></th>
                 </tr>
             </thead>
@@ -434,9 +443,9 @@
 
 <script>
     // ── State ─────────────────────────────────────────────────
-    let allNames        = [];
-    let namesByLocation = {};
-    let queue           = [];   // { name, timePeriod, uptimeHours, downtimeHours }
+    let clientsByLocation = {};   // location → [clientNames]
+    let devicesByClient   = {};   // clientName → [deviceNames]
+    let queue             = [];   // { date, deviceName, clientName, location, timePeriod, uptimeHours, downtimeHours }
 
     // ── Init ──────────────────────────────────────────────────
     document.getElementById('inputDate').value = new Date().toISOString().split('T')[0];
@@ -452,39 +461,74 @@
             ps.innerHTML = '<option value="">— Select period —</option>' +
                 (data.timePeriods || []).map(p => `<option>${escHtml(p)}</option>`).join('');
 
-            // Store names and location data
-            allNames        = data.names || [];
-            namesByLocation = data.namesByLocation || {};
+            // Store cascade data
+            clientsByLocation = data.clientsByLocation || {};
+            devicesByClient   = data.devicesByClient   || {};
 
             // Populate location dropdown
             const locSelect = document.getElementById('inputLocation');
-            locSelect.innerHTML = '<option value="">— All locations —</option>' +
+            locSelect.innerHTML = '<option value="">— Select location —</option>' +
                 (data.locations || []).map(l => `<option value="${escHtml(l)}">${escHtml(l)}</option>`).join('');
-
-            populateNameDropdown();
 
             document.getElementById('loadingStatus').style.display = 'none';
             document.getElementById('entryForm').style.display     = 'block';
         } catch (e) {
             const el = document.getElementById('loadingStatus');
-            el.textContent = 'Failed to load providers — please refresh.';
+            el.textContent = 'Failed to load options — please refresh.';
             el.classList.add('error');
         }
     }
 
-    function populateNameDropdown() {
-        const inQueue  = new Set(queue.map(e => e.name));
-        const location = document.getElementById('inputLocation').value;
-        const sourceNames = location && namesByLocation[location]
-            ? namesByLocation[location]
-            : allNames;
-        const ns = document.getElementById('inputName');
-        ns.innerHTML = '<option value="">— Select provider —</option>' +
-            sourceNames.map(n => {
-                const queued = inQueue.has(n);
-                return `<option value="${escHtml(n)}" ${queued ? 'disabled' : ''}>${escHtml(n)}${queued ? ' (queued)' : ''}</option>`;
-            }).join('');
+    // ── Cascade ───────────────────────────────────────────────
+    function onLocationChange() {
+        const location    = document.getElementById('inputLocation').value;
+        const clientSel   = document.getElementById('inputClient');
+        const deviceSel   = document.getElementById('inputDevice');
+        const hoursInput  = document.getElementById('inputHours');
+
+        // Reset downstream
+        clientSel.innerHTML = '<option value="">— Select client —</option>';
+        deviceSel.innerHTML = '<option value="">— Select device —</option>';
+        clientSel.disabled  = !location;
+        deviceSel.disabled  = true;
+        hoursInput.disabled = true;
+        document.getElementById('downtimeHint').textContent = '';
         updateAddBtn();
+
+        if (!location) return;
+
+        const clients = (clientsByLocation[location] || []).filter(c => {
+            // Hide clients where ALL devices are already queued
+            const devs = devicesByClient[c] || [];
+            return devs.some(d => !queue.some(e => e.deviceName === d && e.timePeriod === document.getElementById('inputPeriod').value));
+        });
+
+        clientSel.innerHTML = '<option value="">— Select client —</option>' +
+            clients.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+    }
+
+    function onClientChange() {
+        const clientName = document.getElementById('inputClient').value;
+        const deviceSel  = document.getElementById('inputDevice');
+        const hoursInput = document.getElementById('inputHours');
+
+        deviceSel.innerHTML = '<option value="">— Select device —</option>';
+        deviceSel.disabled  = !clientName;
+        hoursInput.disabled = !clientName;
+        document.getElementById('downtimeHint').textContent = '';
+        updateAddBtn();
+
+        if (!clientName) return;
+
+        const period      = document.getElementById('inputPeriod').value;
+        const queuedDevs  = new Set(queue.filter(e => e.timePeriod === period).map(e => e.deviceName));
+        const devices     = (devicesByClient[clientName] || []);
+
+        deviceSel.innerHTML = '<option value="">— Select device —</option>' +
+            devices.map(d => {
+                const queued = queuedDevs.has(d);
+                return `<option value="${escHtml(d)}" ${queued ? 'disabled' : ''}>${escHtml(d)}${queued ? ' (queued)' : ''}</option>`;
+            }).join('');
     }
 
     // ── Entry form ────────────────────────────────────────────
@@ -492,7 +536,7 @@
         const val  = parseFloat(document.getElementById('inputHours').value);
         const hint = document.getElementById('downtimeHint');
         if (!isNaN(val) && val >= 0 && val <= 24) {
-            hint.textContent = `Downtime: ${(24 - val).toFixed(1)} hrs (auto-calculated by Airtable)`;
+            hint.textContent = `Downtime: ${(24 - val).toFixed(1)} hrs`;
         } else {
             hint.textContent = '';
         }
@@ -500,50 +544,53 @@
     }
 
     function updateAddBtn() {
-        const name  = document.getElementById('inputName').value;
-        const hours = document.getElementById('inputHours').value;
-        const val   = parseFloat(hours);
+        const device = document.getElementById('inputDevice').value;
+        const hours  = document.getElementById('inputHours').value;
+        const val    = parseFloat(hours);
         document.getElementById('btnAdd').disabled =
-            !name || hours === '' || isNaN(val) || val < 0 || val > 24;
+            !device || hours === '' || isNaN(val) || val < 0 || val > 24;
     }
 
-    document.getElementById('inputName').addEventListener('change', updateAddBtn);
+    document.getElementById('inputDevice').addEventListener('change', updateAddBtn);
 
     function addToQueue() {
-        const date   = document.getElementById('inputDate').value;
-        const period = document.getElementById('inputPeriod').value;
-        const name   = document.getElementById('inputName').value;
-        const hours  = parseFloat(document.getElementById('inputHours').value);
+        const date       = document.getElementById('inputDate').value;
+        const period     = document.getElementById('inputPeriod').value;
+        const location   = document.getElementById('inputLocation').value;
+        const clientName = document.getElementById('inputClient').value;
+        const deviceName = document.getElementById('inputDevice').value;
+        const hours      = parseFloat(document.getElementById('inputHours').value);
 
-        if (!date)   { showToast('Please select a capture date', 'error'); return; }
-        if (!period) { showToast('Please select a time period', 'error'); return; }
-        if (!name)   { showToast('Please select a provider', 'error'); return; }
+        if (!date)       { showToast('Please select a capture date', 'error'); return; }
+        if (!period)     { showToast('Please select a time period', 'error'); return; }
+        if (!location)   { showToast('Please select a location', 'error'); return; }
+        if (!clientName) { showToast('Please select a client', 'error'); return; }
+        if (!deviceName) { showToast('Please select a device', 'error'); return; }
         if (isNaN(hours) || hours < 0 || hours > 24) { showToast('Enter valid uptime hours (0–24)', 'error'); return; }
 
-        // Prevent duplicate name in queue
-        if (queue.some(e => e.name === name && e.timePeriod === period)) {
-            showToast(`${name} already in queue for this period`, 'error');
+        if (queue.some(e => e.deviceName === deviceName && e.timePeriod === period)) {
+            showToast(`${deviceName} already queued for this period`, 'error');
             return;
         }
 
-        queue.push({ date, name, timePeriod: period, uptimeHours: hours, downtimeHours: parseFloat((24 - hours).toFixed(1)) });
+        queue.push({ date, deviceName, clientName, location, timePeriod: period, uptimeHours: hours, downtimeHours: parseFloat((24 - hours).toFixed(1)) });
 
-        // Reset entry inputs
-        document.getElementById('inputName').value  = '';
-        document.getElementById('inputHours').value = '';
+        // Reset entry inputs (keep location + client for fast multi-device entry)
+        document.getElementById('inputDevice').value = '';
+        document.getElementById('inputHours').value  = '';
         document.getElementById('downtimeHint').textContent = '';
-
-        populateNameDropdown();
+        onClientChange(); // refresh device list (mark queued)
+        updateAddBtn();
         renderQueue();
-        showToast(`${name} added to queue`, 'success');
+        showToast(`${clientName} — ${deviceName} added`, 'success');
     }
 
     // ── Queue rendering ───────────────────────────────────────
     function renderQueue() {
-        const badge   = document.getElementById('queueBadge');
-        const empty   = document.getElementById('queueEmpty');
-        const table   = document.getElementById('queueTable');
-        const body    = document.getElementById('queueBody');
+        const badge    = document.getElementById('queueBadge');
+        const empty    = document.getElementById('queueEmpty');
+        const table    = document.getElementById('queueTable');
+        const body     = document.getElementById('queueBody');
         const btnSave  = document.getElementById('btnSave');
         const btnClear = document.getElementById('btnClear');
 
@@ -566,10 +613,11 @@
 
         body.innerHTML = queue.map((e, i) => `
             <tr>
-                <td class="col-name">${escHtml(e.name)}</td>
+                <td class="col-client">${escHtml(e.clientName)}</td>
+                <td class="col-device">${escHtml(e.deviceName)}</td>
                 <td class="col-period">${escHtml(e.timePeriod)}</td>
-                <td class="col-up">${e.uptimeHours} hrs</td>
-                <td class="col-down">${e.downtimeHours} hrs</td>
+                <td class="col-up">${e.uptimeHours}h</td>
+                <td class="col-down">${e.downtimeHours}h</td>
                 <td><button class="btn-remove" onclick="removeFromQueue(${i})" title="Remove">✕</button></td>
             </tr>
         `).join('');
@@ -577,16 +625,16 @@
 
     function removeFromQueue(index) {
         const removed = queue.splice(index, 1)[0];
-        populateNameDropdown();
+        onClientChange(); // refresh device list
         renderQueue();
-        showToast(`${removed.name} removed`, '');
+        showToast(`${removed.clientName} — ${removed.deviceName} removed`, '');
     }
 
     function clearQueue() {
         if (queue.length === 0) return;
         if (!confirm(`Clear all ${queue.length} queued entries?`)) return;
         queue = [];
-        populateNameDropdown();
+        onClientChange();
         renderQueue();
     }
 
@@ -610,8 +658,10 @@
 
             showToast(`${data.saved} records saved to Airtable!`, 'success');
             queue = [];
-            populateNameDropdown();
             renderQueue();
+            // Reset form
+            document.getElementById('inputLocation').value = '';
+            onLocationChange();
         } catch (e) {
             showToast(e.message, 'error');
             btn.disabled  = false;

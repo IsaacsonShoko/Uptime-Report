@@ -42,32 +42,46 @@ export const handler = async () => {
             if (n) allNames.add(n);
         });
 
-        // Location → names mapping from Name Conversions
-        const namesByLocation = {};
-        const locationSet = new Set();
+        // Build location/client/device maps from Name Conversions
+        const namesByLocation    = {};  // location → [deviceNames]  (legacy)
+        const clientsByLocation  = {};  // location → [clientNames]
+        const devicesByClient    = {};  // clientName → [deviceNames]
+        const locationSet        = new Set();
+
         for (const r of cvRecords) {
-            const device   = r.fields['DEVICE NAME']?.trim();
-            const location = r.fields['LOCATION']?.name ?? r.fields['LOCATION'];
-            if (device && location && location !== 'undefined') {
-                if (!namesByLocation[location]) namesByLocation[location] = [];
+            const device     = r.fields['DEVICE NAME']?.trim();
+            const clientName = r.fields['CLIENT NAME']?.trim();
+            const location   = r.fields['LOCATION']?.name ?? r.fields['LOCATION'];
+            if (!device) continue;
+            if (location && location !== 'undefined') {
+                if (!namesByLocation[location])   namesByLocation[location]   = [];
+                if (!clientsByLocation[location]) clientsByLocation[location] = [];
                 namesByLocation[location].push(device);
+                if (clientName && !clientsByLocation[location].includes(clientName))
+                    clientsByLocation[location].push(clientName);
                 locationSet.add(location);
             }
+            if (clientName) {
+                if (!devicesByClient[clientName]) devicesByClient[clientName] = [];
+                devicesByClient[clientName].push(device);
+            }
         }
-        // Sort names within each location
-        for (const loc of Object.keys(namesByLocation)) {
-            namesByLocation[loc].sort();
-        }
+        // Sort all arrays
+        for (const loc of Object.keys(namesByLocation))   namesByLocation[loc].sort();
+        for (const loc of Object.keys(clientsByLocation)) clientsByLocation[loc].sort();
+        for (const cn  of Object.keys(devicesByClient))   devicesByClient[cn].sort();
         const locations = [...locationSet].sort();
 
         return {
             statusCode: 200,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                names:           [...allNames].sort(),
+                names:            [...allNames].sort(),
                 namesByLocation,
+                clientsByLocation,
+                devicesByClient,
                 locations,
-                timePeriods:     TIME_PERIODS,
+                timePeriods:      TIME_PERIODS,
             }),
         };
     } catch (error) {
