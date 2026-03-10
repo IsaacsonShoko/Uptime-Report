@@ -1,3 +1,5 @@
+import { Monitor, Activity, Calendar, Clock, CheckCircle2, AlertTriangle, XOctagon } from 'lucide-react';
+
 const PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 
 function availColor(pct) {
@@ -7,13 +9,11 @@ function availColor(pct) {
 }
 
 export default function KPICards({ data }) {
-  const { totalSites, overallAvgAvailability, date, periods } = data;
+  const { totalSites, totalDevices, overallAvgAvailability, date, periods } = data;
 
-  /* Sum green/amber/red counts across all 3 periods then average */
   let sumGreen = 0;
   let sumAmber = 0;
   let sumRed   = 0;
-
   PERIODS.forEach((p) => {
     const period = periods?.[p];
     if (period?.bands) {
@@ -22,30 +22,36 @@ export default function KPICards({ data }) {
       sumRed   += period.bands.red   ?? 0;
     }
   });
-
   const avgGreen = Math.round(sumGreen / 3);
   const avgAmber = Math.round(sumAmber / 3);
   const avgRed   = Math.round(sumRed   / 3);
 
-  const avail    = typeof overallAvgAvailability === 'number'
-    ? overallAvgAvailability
-    : 0;
-  const availStr = avail.toFixed(1);
+  const avail    = typeof overallAvgAvailability === 'number' ? overallAvgAvailability : 0;
   const availCls = availColor(avail);
 
   return (
     <div className="kpi-grid">
-      {/* 1 — Total Sites */}
+      {/* 1 — Total Clients */}
       <div className="kpi-card">
-        <span className="kpi-label">Total Sites</span>
+        <div className="kpi-icon-row">
+          <Monitor size={16} className="kpi-icon kpi-icon--blue" />
+          <span className="kpi-label">Total Clients</span>
+        </div>
         <span className="kpi-value">{totalSites ?? '—'}</span>
-        <span className="kpi-sub">Monitored this report</span>
+        <span className="kpi-sub">
+          {totalDevices != null && totalDevices !== totalSites
+            ? `${totalDevices} devices monitored`
+            : 'Monitored this report'}
+        </span>
       </div>
 
       {/* 2 — Overall Avg Availability */}
       <div className="kpi-card">
-        <span className="kpi-label">Overall Avg Availability</span>
-        <span className={`kpi-value c-${availCls}`}>{availStr}%</span>
+        <div className="kpi-icon-row">
+          <Activity size={16} className={`kpi-icon kpi-icon--${availCls}`} />
+          <span className="kpi-label">Overall Avg Availability</span>
+        </div>
+        <span className={`kpi-value c-${availCls}`}>{avail.toFixed(1)}%</span>
         <span className="kpi-sub">
           {avail >= 75 ? 'Above threshold' : avail >= 50 ? 'Moderate — monitor closely' : 'Below threshold — action needed'}
         </span>
@@ -53,7 +59,10 @@ export default function KPICards({ data }) {
 
       {/* 3 — Reporting Date */}
       <div className="kpi-card">
-        <span className="kpi-label">Reporting Date</span>
+        <div className="kpi-icon-row">
+          <Calendar size={16} className="kpi-icon kpi-icon--slate" />
+          <span className="kpi-label">Reporting Date</span>
+        </div>
         <span className="kpi-value" style={{ fontSize: '1.05rem', letterSpacing: '0.01em', paddingTop: 4 }}>
           {date ?? '—'}
         </span>
@@ -62,28 +71,40 @@ export default function KPICards({ data }) {
 
       {/* 4 — Time Periods */}
       <div className="kpi-card">
-        <span className="kpi-label">Time Periods</span>
+        <div className="kpi-icon-row">
+          <Clock size={16} className="kpi-icon kpi-icon--slate" />
+          <span className="kpi-label">Time Periods</span>
+        </div>
         <span className="kpi-value">3</span>
         <span className="kpi-sub">Sun–Mon · Tue–Wed · Thur–Fri</span>
       </div>
 
-      {/* 5 — Green Sites */}
+      {/* 5 — Green Clients */}
       <div className="kpi-card kpi-green">
-        <span className="kpi-label">Green Sites</span>
+        <div className="kpi-icon-row">
+          <CheckCircle2 size={16} className="kpi-icon kpi-icon--green" />
+          <span className="kpi-label">Green Clients</span>
+        </div>
         <span className="kpi-value c-green">{avgGreen}</span>
         <span className="kpi-sub">≥75% avg availability</span>
       </div>
 
-      {/* 6 — Amber Sites */}
+      {/* 6 — Amber Clients */}
       <div className="kpi-card kpi-amber">
-        <span className="kpi-label">Amber Sites</span>
+        <div className="kpi-icon-row">
+          <AlertTriangle size={16} className="kpi-icon kpi-icon--amber" />
+          <span className="kpi-label">Amber Clients</span>
+        </div>
         <span className="kpi-value c-amber">{avgAmber}</span>
         <span className="kpi-sub">50–74% avg availability</span>
       </div>
 
-      {/* 7 — Red Sites */}
+      {/* 7 — Red Clients */}
       <div className="kpi-card kpi-red">
-        <span className="kpi-label">Red Sites</span>
+        <div className="kpi-icon-row">
+          <XOctagon size={16} className="kpi-icon kpi-icon--red" />
+          <span className="kpi-label">Red Clients</span>
+        </div>
         <span className="kpi-value c-red">{avgRed}</span>
         <span className="kpi-sub">&lt;50% avg availability</span>
       </div>

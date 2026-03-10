@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -208,7 +209,7 @@ export default function AttentionTable({ sites, periodLabels }) {
             <thead>
               <tr>
                 <th style={thStyle('name')} onClick={() => handleSort('name')}>
-                  Provider {sortKey === 'name' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}
+                  Client {sortKey === 'name' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}
                 </th>
                 <th className="td-c">Sun to Mon<br /><span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: '0.65rem' }}>uptime / avail</span></th>
                 <th className="td-c">Tue to Wed<br /><span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: '0.65rem' }}>uptime / avail</span></th>
@@ -254,8 +255,8 @@ export default function AttentionTable({ sites, periodLabels }) {
           gap: 8,
           borderRadius: '0 0 12px 12px',
         }}>
-          <span style={{ fontSize: '1rem' }}>⚠</span>
-          <strong>{sites.length} site{sites.length !== 1 ? 's' : ''}</strong>
+          <AlertTriangle size={15} style={{ flexShrink: 0 }} />
+          <strong>{sites.length} client{sites.length !== 1 ? 's' : ''}</strong>
           {' '}with average availability below 50% — immediate attention recommended.
         </div>
       </div>

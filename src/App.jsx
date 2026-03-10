@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import KPICards from './components/KPICards.jsx';
 import OverviewCharts from './components/OverviewCharts.jsx';
 import BandTab from './components/BandTab.jsx';
-import PeriodTabs from './components/PeriodTabs.jsx';
+import LocationsTab from './components/LocationsTab.jsx';
 import TopPerformers from './components/TopPerformers.jsx';
 import AttentionTable from './components/AttentionTable.jsx';
 
@@ -13,7 +13,7 @@ const TABS = [
   { id: 'green',     label: 'Green Band',     dot: '#16A34A' },
   { id: 'amber',     label: 'Amber Band',     dot: '#D97706' },
   { id: 'red',       label: 'Red Band',       dot: '#DC2626' },
-  { id: 'detail',    label: 'Period Detail',  dot: '#94A3B8' },
+  { id: 'locations', label: 'Locations',      dot: '#60A5FA' },
   { id: 'attention', label: 'Attention',      dot: '#DC2626' },
 ];
 
@@ -153,7 +153,7 @@ export default function App() {
       case 'green':     return <BandTab band="green" data={viewData} />;
       case 'amber':     return <BandTab band="amber" data={viewData} />;
       case 'red':       return <BandTab band="red"   data={viewData} />;
-      case 'detail':    return <PeriodTabs data={viewData} />;
+      case 'locations': return <LocationsTab data={viewData} />;
       case 'attention':
         return (
           <>

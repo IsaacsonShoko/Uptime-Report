@@ -198,7 +198,7 @@ export default function BandTab({ band, data }) {
             <table>
               <thead>
                 <tr>
-                  <th>Provider</th>
+                  <th>Client</th>
                   <th className="td-c">Sun to Mon</th>
                   <th className="td-c">Tue to Wed</th>
                   <th className="td-c">Thur to Fri</th>
