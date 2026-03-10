@@ -1,15 +1,15 @@
 import fetch from 'node-fetch';
 
 const TIME_PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
-const CV_TABLE     = 'tblujIggqfABKXFco'; // Name Conversions
 
 export const handler = async () => {
     try {
-        const apiKey = process.env.AIRTABLE_API_KEY;
-        const baseId = process.env.AIRTABLE_BASE_ID;
-        const table  = process.env.AIRTABLE_TABLE_NAME || 'Uptime Report';
+        const apiKey  = process.env.AIRTABLE_API_KEY;
+        const baseId  = process.env.AIRTABLE_BASE_ID;
+        const table   = process.env.AIRTABLE_TABLE_NAME || 'Uptime Report';
+        const cvTable = process.env.AIRTABLE_CV_TABLE_ID;
 
-        if (!apiKey || !baseId) {
+        if (!apiKey || !baseId || !cvTable) {
             return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Missing Airtable credentials' }) };
         }
 
@@ -32,7 +32,7 @@ export const handler = async () => {
         // Fetch timesheets (for flat names list) and name conversions (for location cascade) in parallel
         const [tsRecords, cvRecords] = await Promise.all([
             fetchAll(table),
-            fetchAll(CV_TABLE),
+            fetchAll(cvTable),
         ]);
 
         // Flat list of all unique names from Timesheets
