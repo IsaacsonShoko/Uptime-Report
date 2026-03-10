@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 
-const PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const PERIODS   = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const CV_TABLE  = process.env.AIRTABLE_CV_TABLE_ID || 'tblujIggqfABKXFco';
 
 function bandOf(pct) {
     if (pct >= 75) return 'green';
@@ -138,18 +139,17 @@ function aggregate(normalized) {
 
 export const handler = async (event) => {
     try {
-        const apiKey  = process.env.AIRTABLE_API_KEY;
-        const baseId  = process.env.AIRTABLE_BASE_ID;
-        const table   = process.env.AIRTABLE_TABLE_NAME || 'Uptime Report';
-        const cvTable = process.env.AIRTABLE_CV_TABLE_ID;
+        const apiKey = process.env.AIRTABLE_API_KEY;
+        const baseId = process.env.AIRTABLE_BASE_ID;
+        const table  = process.env.AIRTABLE_TABLE_NAME || 'Uptime Report';
 
-        if (!apiKey || !baseId || !cvTable) {
+        if (!apiKey || !baseId) {
             return { statusCode: 400, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'Missing Airtable credentials' }) };
         }
 
         const [raw, cvRecords] = await Promise.all([
             fetchAllRecords(apiKey, baseId, table),
-            fetchAllRecords(apiKey, baseId, cvTable),
+            fetchAllRecords(apiKey, baseId, CV_TABLE),
         ]);
 
         // Build device → { clientName, location } map (case-insensitive key)
