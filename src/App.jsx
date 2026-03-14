@@ -83,7 +83,34 @@ export default function App() {
   const [activeTab,        setActiveTab]        = useState('overview');
   const [selectedDate,     setSelectedDate]     = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
+  const [generating,       setGenerating]       = useState(false);
   const isInitial = useRef(true);
+
+  async function handleGeneratePpt() {
+    if (generating) return;
+    setGenerating(true);
+    try {
+      const url = `/api/generate-ppt${selectedDate ? `?date=${selectedDate}` : ''}`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error || `HTTP ${res.status}`);
+      }
+      const blob     = await res.blob();
+      const objUrl   = URL.createObjectURL(blob);
+      const a        = document.createElement('a');
+      a.href         = objUrl;
+      a.download     = `Network_Uptime_Report_${selectedDate || 'latest'}.pptx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(objUrl);
+    } catch (err) {
+      alert(`Failed to generate report: ${err.message}`);
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   /* Initial load */
   useEffect(() => {
@@ -195,6 +222,14 @@ export default function App() {
               <option key={d} value={d}>{d}</option>
             ))}
           </select>
+          <button
+            className="ppt-btn"
+            onClick={handleGeneratePpt}
+            disabled={generating}
+            title="Export PowerPoint report for the selected date"
+          >
+            {generating ? 'Generating…' : 'Export PPT'}
+          </button>
         </div>
       </header>
 
