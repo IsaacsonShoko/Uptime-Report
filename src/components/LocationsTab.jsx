@@ -16,12 +16,12 @@ function Badge({ value }) {
 
 function GARLabel({ green, amber, red }) {
   return (
-    <span style={{ fontSize: '0.68rem', letterSpacing: '0.02em' }}>
-      <span style={{ color: '#4ADE80', fontWeight: 700 }}>{green}</span>
-      <span style={{ color: '#475569' }}> / </span>
-      <span style={{ color: '#FCD34D', fontWeight: 700 }}>{amber}</span>
-      <span style={{ color: '#475569' }}> / </span>
-      <span style={{ color: '#F87171', fontWeight: 700 }}>{red}</span>
+    <span style={{ fontSize: '0.68rem', letterSpacing: '0.02em', color: '#475569' }}>
+      <span style={{ fontWeight: 700 }}>{green}</span>
+      {' / '}
+      <span style={{ fontWeight: 700 }}>{amber}</span>
+      {' / '}
+      <span style={{ fontWeight: 700 }}>{red}</span>
     </span>
   );
 }

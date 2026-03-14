@@ -8,6 +8,7 @@
 
 [functions."generate-ppt"]
   timeout = 26
+  external_node_modules = ["pptxgenjs"]
 
 [dev]
   framework  = "vite"

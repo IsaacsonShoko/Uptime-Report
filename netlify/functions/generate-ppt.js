@@ -539,8 +539,14 @@ export const handler = async (event) => {
         const d   = buildData(raw, cvRecords, requestedDate);
         const prs = buildPresentation(d);
 
-        const buffer   = await prs.write({ outputType: 'nodebuffer' });
+        // prs.write may return Buffer, Uint8Array, or ArrayBuffer depending on
+        // the environment — Buffer.from() normalises all of them so that
+        // .toString('base64') produces valid base64 (not "[object Uint8Array]").
+        const output   = await prs.write('nodebuffer');
+        const buffer   = Buffer.from(output);
         const filename = `Network_Uptime_Report_${d.date}.pptx`;
+
+        console.log(`PPT generated: ${filename} (${buffer.length} bytes)`);
 
         return {
             statusCode: 200,
