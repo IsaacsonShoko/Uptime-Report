@@ -31,13 +31,14 @@ function availColor(pct)  { return pct >= 75 ? C.green : pct >= 50 ? C.amber : C
 function availLight(pct)  { return pct >= 75 ? 'A7F3D0' : pct >= 50 ? 'FDE68A' : 'FECACA'; }
 
 // ── Fetch Airtable ────────────────────────────────────────
-async function fetchAll(apiKey, baseId, tableId) {
+async function fetchAll(apiKey, baseId, tableId, formula = null) {
     const records = [];
     let offset = null;
     do {
         const url = new URL(`https://api.airtable.com/v0/${baseId}/${encodeURIComponent(tableId)}`);
         url.searchParams.set('pageSize', '100');
-        if (offset) url.searchParams.set('offset', offset);
+        if (formula) url.searchParams.set('filterByFormula', formula);
+        if (offset)  url.searchParams.set('offset', offset);
         const res  = await fetch(url.toString(), { headers: { Authorization: `Bearer ${apiKey}` } });
         if (!res.ok) throw new Error(`Airtable ${res.status}: ${res.statusText}`);
         const body = await res.json();
@@ -526,8 +527,12 @@ export const handler = async (event) => {
 
         const requestedDate = event.queryStringParameters?.date || '';
 
+        // When a date is known, push the filter to Airtable so we only
+        // fetch that day's records — far fewer pages, much faster.
+        const dateFormula = requestedDate ? `{Date}='${requestedDate}'` : null;
+
         const [raw, cvRecords] = await Promise.all([
-            fetchAll(apiKey, baseId, table),
+            fetchAll(apiKey, baseId, table, dateFormula),
             fetchAll(apiKey, baseId, CV_TABLE),
         ]);
 
