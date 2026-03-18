@@ -90,21 +90,9 @@ export default function App() {
     if (generating) return;
     setGenerating(true);
     try {
-      const url = `/api/generate-ppt${selectedDate ? `?date=${selectedDate}` : ''}`;
-      const res = await fetch(url);
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({}));
-        throw new Error(json.error || `HTTP ${res.status}`);
-      }
-      const blob     = await res.blob();
-      const objUrl   = URL.createObjectURL(blob);
-      const a        = document.createElement('a');
-      a.href         = objUrl;
-      a.download     = `Network_Uptime_Report_${selectedDate || 'latest'}.pptx`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(objUrl);
+      // Dynamic import keeps pptxgenjs out of the initial bundle
+      const { generateReport } = await import('./utils/generatePpt.js');
+      await generateReport(data);
     } catch (err) {
       alert(`Failed to generate report: ${err.message}`);
     } finally {
