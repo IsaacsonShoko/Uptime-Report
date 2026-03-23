@@ -83,7 +83,7 @@ function addClientDetailSlides(prs, sites, period, date) {
   }
 
   const ROW_H = 0.175, PAGE_H = 5.75;
-  const MAX   = Math.floor(PAGE_H / ROW_H);
+  const MAX   = Math.floor((PAGE_H - ROW_H) / ROW_H); // subtract 1 header row
   const pages = Math.ceil(allRows.length / MAX);
 
   for (let p = 0; p < pages; p++) {
@@ -161,7 +161,7 @@ function addLocationSlides(prs, activePeriods, periods, date) {
     }
 
     const ROW_H = 0.185, PAGE_H = 5.75;
-    const MAX   = Math.floor(PAGE_H / ROW_H);
+    const MAX   = Math.floor((PAGE_H - ROW_H) / ROW_H); // subtract 1 header row
     const pages = [];
     let cur = [], cnt = 0;
     for (const row of allRows) {
@@ -351,33 +351,40 @@ export async function generateReport(data) {
 
   // ── Clients requiring attention ──────────────────────────
   {
-    const slide = prs.addSlide();
-    addBg(slide);
-    addHeader(slide, 'Clients Requiring Attention — Average Availability < 50%', `Consistently low-performing clients · ${date}`, C.red);
-    addFooter(slide, date);
+    const ATN_ROW_H = 0.24, PAGE_H = 5.75;
+    const MAX = Math.floor((PAGE_H - ATN_ROW_H) / ATN_ROW_H); // subtract 1 header row → 22 data rows
 
-    if (!sitesNeedingAttention.length) {
-      slide.addText('All clients are performing above 50% availability.', { x: 0.5, y: 3.5, w: 9, h: 0.5, fontSize: 14, color: C.green, align: 'center', fontFace: 'Calibri' });
-    } else {
-      const rows = [
-        [
-          { text: 'Client',     options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9 } },
-          ...activePeriods.map(p => ({ text: p, options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9, align: 'center' } })),
-          { text: 'Avg Avail.', options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9, align: 'center' } },
-        ],
-        ...sitesNeedingAttention.map((s, i) => {
+    const hdr = [
+      { text: 'Client',     options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9 } },
+      ...activePeriods.map(per => ({ text: per, options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9, align: 'center' } })),
+      { text: 'Avg Avail.', options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9, align: 'center' } },
+    ];
+
+    const pages = Math.max(1, Math.ceil(sitesNeedingAttention.length / MAX));
+
+    for (let pi = 0; pi < pages; pi++) {
+      const slide = prs.addSlide();
+      addBg(slide);
+      addHeader(slide, `Clients Requiring Attention — Avg Availability < 50%${pages > 1 ? ` (${pi + 1}/${pages})` : ''}`, `Consistently low-performing clients · ${date}`, C.red);
+      addFooter(slide, date);
+
+      if (!sitesNeedingAttention.length) {
+        slide.addText('All clients are performing above 50% availability.', { x: 0.5, y: 3.5, w: 9, h: 0.5, fontSize: 14, color: C.green, align: 'center', fontFace: 'Calibri' });
+      } else {
+        const chunk = sitesNeedingAttention.slice(pi * MAX, (pi + 1) * MAX);
+        const dataRows = chunk.map((s, i) => {
           const bg = i % 2 === 0 ? C.white : C.offwhite;
           return [
             { text: s.name, options: { fontSize: 9, color: C.text, fill: { color: bg } } },
-            ...activePeriods.map(p => {
-              const v = s.periods?.[p];
+            ...activePeriods.map(per => {
+              const v = s.periods?.[per];
               return { text: v ? `${v.uptime}h up / ${v.downtime}h dn (${v.availability}%)` : '—', options: { fontSize: 8.5, color: v ? availColor(v.availability) : C.midgray, fill: { color: bg }, align: 'center' } };
             }),
             { text: `${s.avgAvailability}%`, options: { fontSize: 9, bold: true, color: C.red, fill: { color: bg }, align: 'center' } },
           ];
-        }),
-      ];
-      slide.addTable(rows, { x: 0.3, y: 1.2, w: 9.4, rowH: 0.24, border: { type: 'solid', color: C.lightgray, pt: 0.3 }, fontFace: 'Calibri' });
+        });
+        slide.addTable([hdr, ...dataRows], { x: 0.3, y: 1.2, w: 9.4, h: PAGE_H, rowH: ATN_ROW_H, border: { type: 'solid', color: C.lightgray, pt: 0.3 }, fontFace: 'Calibri' });
+      }
     }
   }
 
