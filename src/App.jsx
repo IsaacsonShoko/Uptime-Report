@@ -6,7 +6,7 @@ import LocationsTab from './components/LocationsTab.jsx';
 import TopPerformers from './components/TopPerformers.jsx';
 import AttentionTable from './components/AttentionTable.jsx';
 
-const PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const PERIODS = ['Sat to Sun', 'Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 
 const TABS = [
   { id: 'overview',  label: 'Overview',       dot: '#2563EB' },

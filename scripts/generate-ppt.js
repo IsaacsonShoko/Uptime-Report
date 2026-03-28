@@ -40,7 +40,7 @@ const C = {
     devicebg:  'F1F5F9',
 };
 
-const PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const PERIODS = ['Sat to Sun', 'Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 
 const BAND_DEFS = [
     { key: 'green', label: '≥75% — Good',      color: C.green, min: 75,  max: 100 },
@@ -283,6 +283,13 @@ function hoursChart(slide, labels, uptimeVals, downtimeVals, x, y, w, h) {
     });
 }
 
+function availComment(pct) {
+    if (pct === 0)  return 'Complete outage';
+    if (pct < 25)   return 'Severe — <25% avail.';
+    if (pct < 50)   return 'Critical — <50% avail.';
+    return '';
+}
+
 // ── Per-period Client Detail table (with device sub-rows) ─
 function addClientDetailSlides(prs, sites, period, date) {
     // Flatten into rows: client row + device sub-rows if >1 device
@@ -318,6 +325,7 @@ function addClientDetailSlides(prs, sites, period, date) {
             { text: 'Uptime h',        options: { bold: true, color: C.white, fill: { color: C.indigo }, fontSize: 9, align: 'center' } },
             { text: 'Downtime h',      options: { bold: true, color: C.white, fill: { color: C.indigo }, fontSize: 9, align: 'center' } },
             { text: 'Availability',    options: { bold: true, color: C.white, fill: { color: C.indigo }, fontSize: 9, align: 'center' } },
+            { text: 'Comments',        options: { bold: true, color: C.white, fill: { color: C.indigo }, fontSize: 9 } },
         ];
 
         let altIdx = 0;
@@ -327,6 +335,7 @@ function addClientDetailSlides(prs, sites, period, date) {
                 const bg = altIdx % 2 === 0 ? C.offwhite : C.white;
                 const s  = row.site;
                 const deviceLabel = s.devices.length > 1 ? ` (${s.devices.length} devices)` : '';
+                const comment = availComment(s.availability);
                 return [
                     { text: String(row.idx),            options: { fontSize: 8,   bold: true, color: C.midgray, fill: { color: bg }, align: 'center' } },
                     { text: s.clientName + deviceLabel, options: { fontSize: 8.5, bold: true, color: C.text,    fill: { color: bg } } },
@@ -334,6 +343,7 @@ function addClientDetailSlides(prs, sites, period, date) {
                     { text: String(s.uptime),           options: { fontSize: 8,   color: C.text,    fill: { color: bg }, align: 'center' } },
                     { text: String(s.downtime),         options: { fontSize: 8,   color: s.downtime > 0 ? C.red : C.text, fill: { color: bg }, align: 'center' } },
                     { text: `${s.availability}%`,       options: { fontSize: 8,   bold: true, color: availColor(s.availability), fill: { color: bg }, align: 'center' } },
+                    { text: comment,                    options: { fontSize: 7.5, italic: true, color: C.red, fill: { color: bg } } },
                 ];
             } else {
                 // Device sub-row — indented, muted
@@ -345,6 +355,7 @@ function addClientDetailSlides(prs, sites, period, date) {
                     { text: String(d.uptime),     options: { fontSize: 7.5, color: C.midgray, fill: { color: C.devicebg }, align: 'center' } },
                     { text: String(d.downtime),   options: { fontSize: 7.5, color: d.downtime > 0 ? 'E57373' : C.midgray, fill: { color: C.devicebg }, align: 'center' } },
                     { text: `${d.availability}%`, options: { fontSize: 7.5, color: availColor(d.availability), fill: { color: C.devicebg }, align: 'center' } },
+                    { text: '',                   options: { fontSize: 7, fill: { color: C.devicebg } } },
                 ];
             }
         });
@@ -495,7 +506,7 @@ prs.subject = 'ISP Uptime Report';
     slide.addText(`Week of ${date}`, {
         x: 0.4, y: 2.85, w: 6, h: 0.45, fontSize: 16, color: C.midgray, fontFace: 'Calibri',
     });
-    slide.addText(`${totalClients} clients  ·  ${totalDevices} devices  ·  ${locations.length} locations  ·  Sun – Fri`, {
+    slide.addText(`${totalClients} clients  ·  ${totalDevices} devices  ·  ${locations.length} locations  ·  Sat – Fri`, {
         x: 0.4, y: 5.2, w: 12, h: 0.4, fontSize: 13, color: C.lightgray, fontFace: 'Calibri',
     });
 }
@@ -569,8 +580,10 @@ for (const band of BAND_DEFS) {
 
     const periodData = activePeriods.map(p => bandDetails[band.key][p] ?? { count: 0, avgUptime: 0, avgDowntime: 0 });
 
+    const boxW = activePeriods.length <= 3 ? 3.0 : 2.2;
+    const boxSpacing = activePeriods.length <= 3 ? 3.15 : 2.35;
     activePeriods.forEach((p, pi) => {
-        statBox(slide, 0.3 + pi * 3.15, 1.2, 3.0,
+        statBox(slide, 0.3 + pi * boxSpacing, 1.2, boxW,
             p.toUpperCase(),
             `${periodData[pi].count} clients`,
             `avg ${periodData[pi].avgUptime}h up · ${periodData[pi].avgDowntime}h dn`
@@ -640,6 +653,7 @@ for (const period of activePeriods) {
                 { text: 'Client',     options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9 } },
                 ...activePeriods.map(p => ({ text: p, options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9, align: 'center' } })),
                 { text: 'Avg Avail.', options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9, align: 'center' } },
+                { text: 'Comments',   options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9 } },
             ],
             ...sitesNeedingAttention.map((s, i) => {
                 const bg = i % 2 === 0 ? C.white : C.offwhite;
@@ -653,6 +667,7 @@ for (const period of activePeriods) {
                         };
                     }),
                     { text: `${s.avgAvailability}%`, options: { fontSize: 9, bold: true, color: C.red, fill: { color: bg }, align: 'center' } },
+                    { text: availComment(s.avgAvailability), options: { fontSize: 7.5, italic: true, color: C.red, fill: { color: bg } } },
                 ];
             }),
         ];

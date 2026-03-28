@@ -11,7 +11,7 @@ import {
   LabelList,
 } from 'recharts';
 
-const PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const PERIODS = ['Sat to Sun', 'Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 
 const C = {
   green: '#16A34A',

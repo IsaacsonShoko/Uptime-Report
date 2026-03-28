@@ -4,7 +4,7 @@
 // crashes in that environment.
 import PptxGenJS from 'pptxgenjs';
 
-const PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const PERIODS = ['Sat to Sun', 'Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 
 const BAND_DEFS = [
   { key: 'green', label: '≥75% — Good',      color: '16A34A' },
@@ -71,6 +71,13 @@ function hoursChart(slide, labels, uptimeVals, downtimeVals, x, y, w, h) {
   });
 }
 
+function availComment(pct) {
+  if (pct === 0)  return 'Complete outage';
+  if (pct < 25)   return 'Severe — <25% avail.';
+  if (pct < 50)   return 'Critical — <50% avail.';
+  return '';
+}
+
 // ── Client detail slides (one per period) ─────────────────
 function addClientDetailSlides(prs, sites, period, date) {
   const allRows = [];
@@ -100,6 +107,7 @@ function addClientDetailSlides(prs, sites, period, date) {
       { text: 'Uptime h',        options: { bold: true, color: C.white, fill: { color: C.indigo }, fontSize: 9, align: 'center' } },
       { text: 'Downtime h',      options: { bold: true, color: C.white, fill: { color: C.indigo }, fontSize: 9, align: 'center' } },
       { text: 'Availability',    options: { bold: true, color: C.white, fill: { color: C.indigo }, fontSize: 9, align: 'center' } },
+      { text: 'Comments',        options: { bold: true, color: C.white, fill: { color: C.indigo }, fontSize: 9 } },
     ];
 
     let alt = 0;
@@ -109,6 +117,7 @@ function addClientDetailSlides(prs, sites, period, date) {
         const bg  = alt % 2 === 0 ? C.offwhite : C.white;
         const s   = row.site;
         const lbl = s.clientName + (s.devices.length > 1 ? ` (${s.devices.length} devices)` : '');
+        const comment = availComment(s.availability);
         return [
           { text: String(row.idx),   options: { fontSize: 8,   bold: true, color: C.midgray, fill: { color: bg }, align: 'center' } },
           { text: lbl,               options: { fontSize: 8.5, bold: true, color: C.text,    fill: { color: bg } } },
@@ -116,6 +125,7 @@ function addClientDetailSlides(prs, sites, period, date) {
           { text: String(s.uptime),  options: { fontSize: 8,              color: C.text,     fill: { color: bg }, align: 'center' } },
           { text: String(s.downtime),options: { fontSize: 8,              color: s.downtime > 0 ? C.red : C.text, fill: { color: bg }, align: 'center' } },
           { text: `${s.availability}%`, options: { fontSize: 8, bold: true, color: availColor(s.availability), fill: { color: bg }, align: 'center' } },
+          { text: comment,           options: { fontSize: 7.5, italic: true, color: C.red, fill: { color: bg } } },
         ];
       } else {
         const d = row.dev;
@@ -126,6 +136,7 @@ function addClientDetailSlides(prs, sites, period, date) {
           { text: String(d.uptime),     options: { fontSize: 7.5, color: C.midgray, fill: { color: C.devicebg }, align: 'center' } },
           { text: String(d.downtime),   options: { fontSize: 7.5, color: d.downtime > 0 ? 'E57373' : C.midgray, fill: { color: C.devicebg }, align: 'center' } },
           { text: `${d.availability}%`, options: { fontSize: 7.5, color: availColor(d.availability), fill: { color: C.devicebg }, align: 'center' } },
+          { text: '',                   options: { fontSize: 7, fill: { color: C.devicebg } } },
         ];
       }
     });
@@ -250,7 +261,7 @@ export async function generateReport(data) {
     slide.addText('NETWORK PERFORMANCE', { x: 0.4, y: 1.2, w: 12, h: 0.5, fontSize: 14, bold: true, color: C.accent, charSpacing: 4, fontFace: 'Calibri' });
     slide.addText('Uptime & Availability Report', { x: 0.4, y: 1.75, w: 12, h: 1.0, fontSize: 40, bold: true, color: C.white, fontFace: 'Calibri' });
     slide.addText(`Week of ${date}`, { x: 0.4, y: 2.85, w: 6, h: 0.45, fontSize: 16, color: C.midgray, fontFace: 'Calibri' });
-    slide.addText(`${totalClients} clients  ·  ${totalDevices} devices  ·  ${locations.length} locations  ·  Sun – Fri`, { x: 0.4, y: 5.2, w: 12, h: 0.4, fontSize: 13, color: C.lightgray, fontFace: 'Calibri' });
+    slide.addText(`${totalClients} clients  ·  ${totalDevices} devices  ·  ${locations.length} locations  ·  Sat – Fri`, { x: 0.4, y: 5.2, w: 12, h: 0.4, fontSize: 13, color: C.lightgray, fontFace: 'Calibri' });
   }
 
   // ── Slide 2: Executive Summary ───────────────────────────
@@ -311,8 +322,10 @@ export async function generateReport(data) {
     addFooter(slide, date);
 
     const periodData = activePeriods.map(p => bandDetails[band.key]?.[p] ?? { count: 0, avgUptime: 0, avgDowntime: 0 });
+    const boxW = activePeriods.length <= 3 ? 3.0 : 2.2;
+    const boxSpacing = activePeriods.length <= 3 ? 3.15 : 2.35;
     activePeriods.forEach((p, pi) => {
-      statBox(slide, 0.3 + pi * 3.15, 1.2, 3.0, p.toUpperCase(), `${periodData[pi].count} clients`, `avg ${periodData[pi].avgUptime}h up · ${periodData[pi].avgDowntime}h dn`);
+      statBox(slide, 0.3 + pi * boxSpacing, 1.2, boxW, p.toUpperCase(), `${periodData[pi].count} clients`, `avg ${periodData[pi].avgUptime}h up · ${periodData[pi].avgDowntime}h dn`);
     });
     hoursChart(slide, activePeriods, periodData.map(d => d.avgUptime), periodData.map(d => d.avgDowntime), 0.5, 2.65, 9.0, 4.15);
     slide.addShape('rect', { x: 0, y: 1.1, w: 0.12, h: 5.95, fill: { color: band.color } });
@@ -358,6 +371,7 @@ export async function generateReport(data) {
       { text: 'Client',     options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9 } },
       ...activePeriods.map(per => ({ text: per, options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9, align: 'center' } })),
       { text: 'Avg Avail.', options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9, align: 'center' } },
+      { text: 'Comments',   options: { bold: true, color: C.white, fill: { color: C.red }, fontSize: 9 } },
     ];
 
     const pages = Math.max(1, Math.ceil(sitesNeedingAttention.length / MAX));
@@ -381,6 +395,7 @@ export async function generateReport(data) {
               return { text: v ? `${v.uptime}h up / ${v.downtime}h dn (${v.availability}%)` : '—', options: { fontSize: 8.5, color: v ? availColor(v.availability) : C.midgray, fill: { color: bg }, align: 'center' } };
             }),
             { text: `${s.avgAvailability}%`, options: { fontSize: 9, bold: true, color: C.red, fill: { color: bg }, align: 'center' } },
+            { text: availComment(s.avgAvailability), options: { fontSize: 7.5, italic: true, color: C.red, fill: { color: bg } } },
           ];
         });
         slide.addTable([hdr, ...dataRows], { x: 0.3, y: 1.2, w: 9.4, h: PAGE_H, rowH: ATN_ROW_H, border: { type: 'solid', color: C.lightgray, pt: 0.3 }, fontFace: 'Calibri' });

@@ -12,7 +12,7 @@ import {
   LabelList,
 } from 'recharts';
 
-const PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const PERIODS = ['Sat to Sun', 'Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 
 const C = {
   green: '#16A34A',
@@ -211,9 +211,9 @@ export default function AttentionTable({ sites, periodLabels }) {
                 <th style={thStyle('name')} onClick={() => handleSort('name')}>
                   Client {sortKey === 'name' ? (sortDir === 'asc' ? '▲' : '▼') : '⇅'}
                 </th>
-                <th className="td-c">Sun to Mon<br /><span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: '0.65rem' }}>uptime / avail</span></th>
-                <th className="td-c">Tue to Wed<br /><span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: '0.65rem' }}>uptime / avail</span></th>
-                <th className="td-c">Thur to Fri<br /><span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: '0.65rem' }}>uptime / avail</span></th>
+                {(periodLabels || PERIODS).map(p => (
+                  <th key={p} className="td-c">{p}<br /><span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: '0.65rem' }}>uptime / avail</span></th>
+                ))}
                 <th
                   className="td-c sorted"
                   style={thStyle('avgAvailability')}

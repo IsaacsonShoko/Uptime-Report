@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const PERIODS   = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const PERIODS   = ['Sat to Sun', 'Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 const CV_TABLE  = process.env.AIRTABLE_CV_TABLE_ID || 'tblujIggqfABKXFco';
 
 function bandOf(pct) {

@@ -13,7 +13,7 @@ import {
   LabelList,
 } from 'recharts';
 
-const PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const PERIODS = ['Sat to Sun', 'Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 
 const C = {
   green:  '#16A34A',
@@ -177,7 +177,7 @@ function DonutChart({ data }) {
   return (
     <div className="chart-card">
       <div className="chart-title">Site Distribution — All Periods</div>
-      <div className="chart-sub">Total band counts summed across 3 periods</div>
+      <div className="chart-sub">Total band counts summed across {PERIODS.length} periods</div>
       <div className="donut-wrapper" style={{ height: 220 }}>
         <ResponsiveContainer width="100%" height={220}>
           <PieChart>

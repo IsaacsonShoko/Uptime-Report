@@ -10,7 +10,7 @@ import {
   LabelList,
 } from 'recharts';
 
-const PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const PERIODS = ['Sat to Sun', 'Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 
 const BAND_CONFIG = {
   green: { label: '≥75% — Good',     color: '#16A34A', cls: 'green', textColor: '#4ADE80' },
@@ -199,9 +199,7 @@ export default function BandTab({ band, data }) {
               <thead>
                 <tr>
                   <th>Client</th>
-                  <th className="td-c">Sun to Mon</th>
-                  <th className="td-c">Tue to Wed</th>
-                  <th className="td-c">Thur to Fri</th>
+                  {PERIODS.map(p => <th key={p} className="td-c">{p}</th>)}
                   <th className="td-c">Avg</th>
                 </tr>
               </thead>

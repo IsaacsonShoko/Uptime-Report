@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { MapPin, Building2, Monitor } from 'lucide-react';
 
-const PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const PERIODS = ['Sat to Sun', 'Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 
 function bandOf(pct) {
   if (pct >= 75) return 'green';

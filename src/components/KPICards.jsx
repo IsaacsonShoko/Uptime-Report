@@ -1,6 +1,6 @@
 import { Monitor, Activity, Calendar, Clock, CheckCircle2, AlertTriangle, XOctagon } from 'lucide-react';
 
-const PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const PERIODS = ['Sat to Sun', 'Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 
 function availColor(pct) {
   if (pct >= 75) return 'green';
@@ -22,9 +22,9 @@ export default function KPICards({ data }) {
       sumRed   += period.bands.red   ?? 0;
     }
   });
-  const avgGreen = Math.round(sumGreen / 3);
-  const avgAmber = Math.round(sumAmber / 3);
-  const avgRed   = Math.round(sumRed   / 3);
+  const avgGreen = Math.round(sumGreen / PERIODS.length);
+  const avgAmber = Math.round(sumAmber / PERIODS.length);
+  const avgRed   = Math.round(sumRed   / PERIODS.length);
 
   const avail    = typeof overallAvgAvailability === 'number' ? overallAvgAvailability : 0;
   const availCls = availColor(avail);
@@ -75,8 +75,8 @@ export default function KPICards({ data }) {
           <Clock size={16} className="kpi-icon kpi-icon--slate" />
           <span className="kpi-label">Time Periods</span>
         </div>
-        <span className="kpi-value">3</span>
-        <span className="kpi-sub">Sun–Mon · Tue–Wed · Thur–Fri</span>
+        <span className="kpi-value">{PERIODS.length}</span>
+        <span className="kpi-sub">Sat–Sun · Sun–Mon · Tue–Wed · Thur–Fri</span>
       </div>
 
       {/* 5 — Green Clients */}

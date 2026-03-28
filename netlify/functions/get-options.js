@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-const TIME_PERIODS = ['Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
+const TIME_PERIODS = ['Sat to Sun', 'Sun to Mon', 'Tue to Wed', 'Thur to Fri'];
 const CV_TABLE     = process.env.AIRTABLE_CV_TABLE_ID || 'tblujIggqfABKXFco';
 
 export const handler = async () => {

@@ -2,7 +2,7 @@
 /**
  * Upload UPTIME FINALIZED.xlsx to Airtable
  *
- * Unpivots: Names × [Sun to Mon, Tue to Wed, Thur to Fri] → individual rows
+ * Unpivots: Names × [Sat to Sun, Sun to Mon, Tue to Wed, Thur to Fri] → individual rows
  * Airtable fields written: Date, Names, Time Period, Uptime Hours
  * (Downtime Hours is auto-calculated by Airtable: 24 - Uptime Hours)
  *
@@ -40,9 +40,10 @@ const AIRTABLE_TABLE   = process.env.AIRTABLE_TABLE_NAME || 'Uptime Report';
 
 // Column map: Excel key → Airtable "Time Period" value
 const TIME_PERIOD_MAP = {
-    '__EMPTY':   'Sun to Mon',
-    '__EMPTY_1': 'Tue to Wed',
-    '__EMPTY_2': 'Thur to Fri',
+    '__EMPTY':   'Sat to Sun',
+    '__EMPTY_1': 'Sun to Mon',
+    '__EMPTY_2': 'Tue to Wed',
+    '__EMPTY_3': 'Thur to Fri',
 };
 
 // Parse "8 HOURS", "24 hours", "24 ours" → 8 / 24 / 24
