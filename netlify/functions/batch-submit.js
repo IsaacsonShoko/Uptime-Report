@@ -39,6 +39,7 @@ export const handler = async (event) => {
                         Location:       r.location    || '',
                         'Time Period':  r.timePeriod,
                         'Uptime Hours': parseFloat(r.uptimeHours),
+                        ...(r.comments ? { Comments: r.comments } : {}),
                     },
                 })),
             };

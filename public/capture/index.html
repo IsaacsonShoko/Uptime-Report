@@ -109,6 +109,29 @@
             text-transform: uppercase;
             letter-spacing: 0.04em;
         }
+        .field textarea {
+            width: 100%;
+            padding: 10px 13px;
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            color: #f1f5f9;
+            background: #0f172a;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 60px;
+        }
+        .field textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.18);
+        }
+        .field textarea:disabled {
+            opacity: 0.38;
+            cursor: not-allowed;
+        }
+
         .field select,
         .field input[type="number"],
         .field input[type="date"] {
@@ -398,6 +421,12 @@
                 <button class="btn-add" id="btnAdd" onclick="addToQueue()" disabled>+ Add</button>
             </div>
             <div class="downtime-hint" id="downtimeHint"></div>
+
+            <!-- Comments -->
+            <div class="field" style="margin-top: 14px;">
+                <label for="inputComments">Comments</label>
+                <textarea id="inputComments" placeholder="Optional comments…" rows="2" disabled></textarea>
+            </div>
         </div>
     </div>
 
@@ -417,6 +446,7 @@
                     <th>Period</th>
                     <th>Up</th>
                     <th>Down</th>
+                    <th>Comment</th>
                     <th></th>
                 </tr>
             </thead>
@@ -492,6 +522,7 @@
         clientSel.disabled  = !location;
         deviceSel.disabled  = true;
         hoursInput.disabled = true;
+        document.getElementById('inputComments').disabled = true;
         document.getElementById('downtimeHint').textContent = '';
         updateAddBtn();
 
@@ -515,6 +546,7 @@
         deviceSel.innerHTML = '<option value="">— Select device —</option>';
         deviceSel.disabled  = !clientName;
         hoursInput.disabled = !clientName;
+        document.getElementById('inputComments').disabled = !clientName;
         document.getElementById('downtimeHint').textContent = '';
         updateAddBtn();
 
@@ -560,6 +592,7 @@
         const clientName = document.getElementById('inputClient').value;
         const deviceName = document.getElementById('inputDevice').value;
         const hours      = parseFloat(document.getElementById('inputHours').value);
+        const comments   = document.getElementById('inputComments').value.trim();
 
         if (!date)       { showToast('Please select a capture date', 'error'); return; }
         if (!period)     { showToast('Please select a time period', 'error'); return; }
@@ -573,11 +606,12 @@
             return;
         }
 
-        queue.push({ date, deviceName, clientName, location, timePeriod: period, uptimeHours: hours, downtimeHours: parseFloat((24 - hours).toFixed(1)) });
+        queue.push({ date, deviceName, clientName, location, timePeriod: period, uptimeHours: hours, downtimeHours: parseFloat((24 - hours).toFixed(1)), comments });
 
         // Reset entry inputs (keep location + client for fast multi-device entry)
-        document.getElementById('inputDevice').value = '';
-        document.getElementById('inputHours').value  = '';
+        document.getElementById('inputDevice').value   = '';
+        document.getElementById('inputHours').value    = '';
+        document.getElementById('inputComments').value = '';
         document.getElementById('downtimeHint').textContent = '';
         onClientChange(); // refresh device list (mark queued)
         updateAddBtn();
@@ -618,6 +652,7 @@
                 <td class="col-period">${escHtml(e.timePeriod)}</td>
                 <td class="col-up">${e.uptimeHours}h</td>
                 <td class="col-down">${e.downtimeHours}h</td>
+                <td class="col-period">${e.comments ? escHtml(e.comments) : '—'}</td>
                 <td><button class="btn-remove" onclick="removeFromQueue(${i})" title="Remove">✕</button></td>
             </tr>
         `).join('');
